@@ -7,7 +7,7 @@ import todosRouter from "./routes/todos.js";
 import authRouter from "./routes/auth.js";
 
 const app = express();
-const url = "https://invoice-tracker-server.onrender.com"
+const url = "https://bitnap-server.onrender.com/"
 const interval = 1000 * 60 * 10; // 5 minutes in milliseconds
 app.use(express.json());
 app.use(cors());
