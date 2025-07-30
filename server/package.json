@@ -2,12 +2,12 @@
   "name": "tvhackathon2-server",
   "version": "1.0.0",
   "description": "",
-  "main": "server.ts",
+  "main": "api/index.ts",
   "scripts": {
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon --exec tsx src/server.ts",
-    "start": "node dist/server.js"
+    "start": "ts-node dist/server.ts"
   },
   "keywords": [],
   "author": "jj",

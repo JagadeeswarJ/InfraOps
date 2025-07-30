@@ -4,7 +4,7 @@ dotenv.config();
 import axios from "axios";
 import cors from "cors";
 import todosRouter from "./routes/todos.js";
-import authRouter from "./routes/auth.ts";
+import authRouter from "./routes/auth.js";
 
 const app = express();
 const url = "https://invoice-tracker-server.onrender.com"

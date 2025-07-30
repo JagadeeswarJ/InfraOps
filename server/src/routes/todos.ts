@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { supabase } from "../configs/supabaseClient.ts"
+import { supabase } from "../configs/supabaseClient.js"
 import expressAsyncHandler from "express-async-handler";
 import { todo } from "node:test";
 
