@@ -1,9 +1,5 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
 export const env = {
-    SUPABASE_URL: process.env.SUPABASE_URL || '',
-    SUPABASE_KEY: process.env.SUPABASE_KEY || '',
-    PORT: process.env.PORT ? parseInt(process.env.PORT, 10) : 3000,
-    NODE_ENV: process.env.NODE_ENV || 'development',
+    SUPABASE_URL: "https://smjknghqetnpozkvjwni.supabase.co",
+    SUPABASE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtamtuZ2hxZXRucG96a3Zqd25pIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1Mzg1NTU2OSwiZXhwIjoyMDY5NDMxNTY5fQ.xCCA2q89M352VLigiHD6zgAZi8A7yekGrEyZL3BfFLI",
+    PORT: 3000,
 }
