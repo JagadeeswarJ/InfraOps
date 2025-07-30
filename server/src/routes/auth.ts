@@ -1,6 +1,6 @@
 import { Router } from "express"
 import expressAsyncHandler from "express-async-handler";
-import { supabase } from "../config/supabaseClient.ts"
+import { supabase } from "../configs/supabaseClient.ts"
 
 
 const authRouter = Router();
