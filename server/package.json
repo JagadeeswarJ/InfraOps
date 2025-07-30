@@ -1,0 +1,34 @@
+{
+  "name": "tvhackathon2-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon --exec tsx src/server.ts",
+    "start": "node dist/server.js"
+  },
+  "keywords": [],
+  "author": "jj",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.3",
+    "nodemon": "^3.1.10",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.50.0",
+    "axios": "^1.10.0",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-async-handler": "^1.2.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.3"
+  }
+}
