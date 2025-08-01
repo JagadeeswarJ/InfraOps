@@ -15,7 +15,7 @@ export async function callGemini({
   mimeType?: string;
 }) {
   const model = genAI.getGenerativeModel({
-    model: imageBase64 ? "gemini-pro-vision" : "gemini-pro",
+    model: imageBase64 ? "gemini-2.5-flash-lite" : "gemini-2.5-flash-lite",
   });
 
   const safetySettings = [

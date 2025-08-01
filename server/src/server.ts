@@ -7,7 +7,7 @@ const app = express();
 const PORT = 3000;
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.set("trust proxy", true);
 
 app.get("/", (req: Request, res: Response) => {

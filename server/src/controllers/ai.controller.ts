@@ -3,7 +3,7 @@ import { callGemini } from "../utils/gemini.util.js";
 
 export const testGemini = async (req: Request, res: Response): Promise<any> => {
     try {
-        const { prompt, context, imageBase64, mimeType } = req.body;
+        const { prompt, imageBase64, mimeType } = req.body;
 
         // Validate required fields
         if (!prompt) {
@@ -23,17 +23,22 @@ export const testGemini = async (req: Request, res: Response): Promise<any> => {
         // Call Gemini
         const response = await callGemini({
             messages,
-            context,
             imageBase64,
             mimeType
         });
-
+        // Parse Gemini's JSON response and log it
+        let parsedResponse;
+        try {
+            parsedResponse = typeof response === "string" ? JSON.parse(response) : response;
+        } catch (parseError) {
+            console.error("Failed to parse Gemini response as JSON:", parseError);
+            parsedResponse = response;
+        }
+        console.log("Gemini response:", parsedResponse);
         return res.status(200).json({
             success: true,
             prompt,
-            response,
-            context: context || null,
-            hasImage: !!imageBase64
+            response
         });
 
     } catch (error) {
