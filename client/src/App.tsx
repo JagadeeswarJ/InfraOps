@@ -3,14 +3,19 @@ import { Navbar } from "./components/Navbar"
 import { HomePage } from "./pages/HomePage"
 import { AuthForm } from "./pages/AuthForm"
 import { Dashboard } from "./pages/Dashboard"
-import { UserDashboard } from "./pages/UserDashboard"
+import { UserReportsPage } from "./pages/UserReportsPage"
 import { TechnicianDashboard } from "./pages/TechnicianDashboard"
 import { ProtectedRoute } from "./components/ProtectedRoute"
 import { AuthProvider } from "./contexts/AuthContext"
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true
+      }}
+    >
       <AuthProvider>
         <div className="relative flex min-h-screen flex-col bg-background">
           <Navbar />
@@ -24,7 +29,7 @@ export default function App() {
             } />
             <Route path="/user-dashboard" element={
               <ProtectedRoute requiredRole="resident">
-                <UserDashboard />
+                <UserReportsPage />
               </ProtectedRoute>
             } />
             <Route path="/technician-dashboard" element={

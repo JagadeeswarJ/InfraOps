@@ -34,7 +34,7 @@ export type TicketStatus = 'open' | 'assigned' | 'in_progress' | 'resolved' | 'c
 export interface Ticket {
     title: string;
     description: string;
-    imageUrl?: string[]; // Array of image URLs
+    images?: string[]; // Array of base64 image data
     reportedBy: string; // userId
     assignedTo?: string; // technician userId
     category: string; // e.g., 'plumbing', 'electrical'

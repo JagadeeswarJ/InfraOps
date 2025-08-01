@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Plus, Edit, Trash2, Building, Users, Loader2 } from "lucide-react"
+import { 
+  Plus, Edit, Trash2, Building, Users, Loader2
+} from "lucide-react"
 import { useAuth } from "../contexts/AuthContext"
 import { api } from "@/utils/api"
 import Notification from "@/components/ui/notification"
@@ -26,6 +28,9 @@ interface Community {
   createdAt: any
   updatedAt: any
 }
+
+
+
 
 export function Dashboard() {
   const { user } = useAuth()
@@ -101,6 +106,10 @@ export function Dashboard() {
       setIsLoading(false)
     }
   }
+
+
+
+
 
   useEffect(() => {
     if (user?.role === 'manager') {

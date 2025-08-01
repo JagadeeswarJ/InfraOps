@@ -56,18 +56,22 @@ const onBoarding = async (req: Request, res: Response): Promise<any> => {
         expiresAt.setMinutes(expiresAt.getMinutes() + 10);
 
         // Store user data temporarily with OTP
+        const userData: any = {
+            name,
+            email,
+            password: password, // Store plain text password
+            role,
+        };
+
+        // Only add optional fields if they have values
+        if (phone) userData.phone = phone;
+        if (role === 'technician' && expertise) userData.expertise = expertise;
+        if (communityId) userData.communityId = communityId;
+
         const otpData: OTP = {
             email,
             otp,
-            userData: {
-                name,
-                email,
-                password: password, // Store plain text password
-                phone: phone || undefined,
-                role,
-                expertise: role === 'technician' ? expertise : undefined,
-                communityId: communityId || undefined,
-            },
+            userData,
             expiresAt: FieldValue.serverTimestamp() as any,
             createdAt: FieldValue.serverTimestamp() as any
         };

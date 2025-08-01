@@ -13,7 +13,8 @@ const createTicket = async (req: Request, res: Response): Promise<any> => {
         const {
             title,
             description,
-            imageUrl, // Array of image URLs
+            images,
+            imageUrl, // Legacy field for backward compatibility
             reportedBy,
             category,
             location,
@@ -21,6 +22,9 @@ const createTicket = async (req: Request, res: Response): Promise<any> => {
             communityId,
             autoAssign = false
         } = req.body;
+
+        // Handle both new 'images' field and legacy 'imageUrl' field
+        const imageData = images || imageUrl || [];
 
         // Validate required fields
         if (!title || !description || !reportedBy || !category || !location || !communityId) {
@@ -49,7 +53,7 @@ const createTicket = async (req: Request, res: Response): Promise<any> => {
         const ticketData: Ticket = {
             title,
             description,
-            imageUrl: Array.isArray(imageUrl) ? imageUrl : (imageUrl ? [imageUrl] : []),
+            images: Array.isArray(imageData) ? imageData.filter(img => img !== null) : (imageData ? [imageData] : []),
             reportedBy,
             category,
             location,
@@ -213,17 +217,23 @@ const processTicketWithAI = async (ticketData: Ticket, ticketId: string, communi
     const similarTicketsQuery = await db.collection('tickets')
         .where('communityId', '==', communityId)
         .where('status', 'in', ['open', 'assigned', 'in_progress'])
-        .orderBy('createdAt', 'desc')
         .limit(10)
         .get();
 
-    const similarTickets = similarTicketsQuery.docs.map(doc => {
-        const data = doc.data() as Ticket;
-        return {
-            id: doc.id,
-            ...data
-        };
-    });
+    const similarTickets = similarTicketsQuery.docs
+        .map(doc => {
+            const data = doc.data() as Ticket;
+            return {
+                id: doc.id,
+                ...data
+            };
+        })
+        .sort((a, b) => {
+            const aCreatedAt = a.createdAt?.toDate ? a.createdAt.toDate() : (a.createdAt ? new Date(a.createdAt) : new Date(0));
+            const bCreatedAt = b.createdAt?.toDate ? b.createdAt.toDate() : (b.createdAt ? new Date(b.createdAt) : new Date(0));
+            return bCreatedAt.getTime() - aCreatedAt.getTime();
+        })
+        .slice(0, 10);
 
     // Get recent tickets from same reporter for spam detection
     const recentReporterTickets = await db.collection('tickets')
@@ -344,19 +354,50 @@ Respond with ONLY valid JSON:
 }`;
 
     try {
+        const processId = `ai_process_${ticketId}_${Date.now()}`;
+        console.log(`\n🤖 [${processId}] === TICKET AI PROCESSING START ===`);
+        console.log(`[${processId}] Ticket ID: ${ticketId}`);
+        console.log(`[${processId}] Community ID: ${communityId}`);
+        console.log(`[${processId}] Has images: ${!!(ticketData.images && ticketData.images.length > 0)}`);
+        
+        if (ticketData.images && ticketData.images.length > 0) {
+            console.log(`[${processId}] Images to analyze: ${ticketData.images.length} base64 images`);
+        }
+        
+        console.log(`[${processId}] AI Prompt length: ${aiPrompt.length} characters`);
+        console.log(`[${processId}] 📝 AI Prompt Content:`);
+        console.log(`[${processId}] ${aiPrompt}`);
+        
+        console.log(`[${processId}] Calling Gemini AI...`);
+        const aiStartTime = Date.now();
+        
         const aiResponse = await callGemini({
             messages: [
                 {
                     role: "user",
                     parts: [{ text: aiPrompt }]
                 }
-            ]
+            ],
+            imageBase64Array: ticketData.images && ticketData.images.length > 0 ? ticketData.images : undefined
         });
-        console.log("AI Response:", aiResponse);
         
-        // Parse AI response
-        const aiData = JSON.parse(aiResponse);
+        const aiDuration = Date.now() - aiStartTime;
+        console.log(`[${processId}] ✅ AI processing completed in ${aiDuration}ms`);
+        console.log(`[${processId}] 🔮 Raw AI Response (${aiResponse.length} chars):`);
+        console.log(`[${processId}] ${aiResponse}`);
         
+        console.log(`[${processId}] Parsing AI response as JSON...`);
+        let aiData;
+        try {
+            aiData = JSON.parse(aiResponse);
+            console.log(`[${processId}] ✅ JSON parsing successful`);
+            console.log(`[${processId}] 📊 Parsed AI Data:`, JSON.stringify(aiData, null, 2));
+        } catch (parseError) {
+            console.error(`[${processId}] ❌ JSON parsing failed:`, parseError);
+            throw new Error(`Failed to parse AI response as JSON: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
+        }
+        
+        console.log(`[${processId}] Building metadata object...`);
         const metadata = {
             predictedCategory: aiData.predictedCategory,
             predictedUrgency: aiData.predictedUrgency,
@@ -366,8 +407,8 @@ Respond with ONLY valid JSON:
             recommendedTechnician: aiData.recommendedTechnician,
             alternativeTechnicians: aiData.alternativeTechnicians || []
         };
-
-        return {
+        
+        const result = {
             metadata,
             isSpam: aiData.isSpam === true,
             spamConfidence: aiData.spamConfidence || 0,
@@ -380,9 +421,33 @@ Respond with ONLY valid JSON:
             estimatedDuration: aiData.estimatedDuration,
             difficultyLevel: aiData.difficultyLevel
         };
+        
+        console.log(`[${processId}] 📋 Final AI Processing Result:`);
+        console.log(`[${processId}]   - Predicted Category: ${result.metadata.predictedCategory}`);
+        console.log(`[${processId}]   - Predicted Urgency: ${result.metadata.predictedUrgency}`);
+        console.log(`[${processId}]   - Is Spam: ${result.isSpam} (confidence: ${result.spamConfidence})`);
+        console.log(`[${processId}]   - Should Merge: ${result.shouldMergeWithExisting}`);
+        console.log(`[${processId}]   - Similar Ticket ID: ${result.similarTicketId}`);
+        console.log(`[${processId}]   - Required Tools: [${result.requiredTools.join(', ')}]`);
+        console.log(`[${processId}]   - Required Materials: [${result.requiredMaterials.join(', ')}]`);
+        console.log(`[${processId}]   - Estimated Duration: ${result.estimatedDuration}`);
+        console.log(`[${processId}]   - Difficulty Level: ${result.difficultyLevel}`);
+        console.log(`[${processId}]   - Reasoning: ${result.reasoning}`);
+        console.log(`[${processId}] === TICKET AI PROCESSING SUCCESS ===\n`);
+
+        return result;
 
     } catch (error) {
-        console.error("AI processing error:", error);
+        console.error(`❌ [AI Processing Error for ticket ${ticketId}] ===`);
+        console.error(`Ticket ID: ${ticketId}`);
+        console.error(`Community ID: ${communityId}`);
+        console.error(`Error:`, error);
+        console.error(`Error details:`, {
+            message: (error as Error).message,
+            stack: (error as Error).stack,
+            name: (error as Error).name
+        });
+        console.error(`=== AI PROCESSING ERROR END ===\n`);
         // Return default metadata if AI fails
         return {
             metadata: {
@@ -396,7 +461,12 @@ Respond with ONLY valid JSON:
             spamConfidence: 0,
             spamReason: '',
             shouldMergeWithExisting: false,
-            similarTicketId: null
+            similarTicketId: null,
+            reasoning: 'AI processing failed, using defaults',
+            requiredTools: [],
+            requiredMaterials: [],
+            estimatedDuration: 'Unknown',
+            difficultyLevel: 'medium'
         };
     }
 };
@@ -418,13 +488,13 @@ const mergeWithSimilarTicket = async (
 
         // Merge images
         const mergedImages = [
-            ...(existingTicketData.imageUrl || []),
-            ...(newTicketData.imageUrl || [])
+            ...(existingTicketData.images || []),
+            ...(newTicketData.images || [])
         ];
 
         // Update existing ticket with merged data
         await db.collection('tickets').doc(existingTicketId).update({
-            imageUrl: mergedImages,
+            images: mergedImages,
             description: `${existingTicketData.description}\n\n--- Additional Report ---\n${newTicketData.description}`,
             history: [
                 ...(existingTicketData.history || []),
@@ -491,34 +561,39 @@ const getTickets = async (req: Request, res: Response): Promise<any> => {
     try {
         const { communityId, reportedBy, status, category } = req.query;
 
-        let query = db.collection('tickets').orderBy('createdAt', 'desc');
+        // Start with base query without orderBy to avoid composite index requirement
+        let query: any = db.collection('tickets');
 
-        // Filter by community
+        // Apply filters one by one
         if (communityId) {
             query = query.where('communityId', '==', communityId);
         }
 
-        // Filter by reporter
         if (reportedBy) {
             query = query.where('reportedBy', '==', reportedBy);
         }
 
-        // Filter by status
         if (status) {
             query = query.where('status', '==', status);
         }
 
-        // Filter by category
         if (category) {
             query = query.where('category', '==', category);
         }
 
         const ticketsSnapshot = await query.get();
 
-        const tickets = ticketsSnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
+        // Get all tickets and sort in memory by createdAt desc
+        const tickets = ticketsSnapshot.docs
+            .map((doc: any) => ({
+                id: doc.id,
+                ...doc.data()
+            }))
+            .sort((a: any, b: any) => {
+                const aCreatedAt = a.createdAt?.toDate ? a.createdAt.toDate() : (a.createdAt ? new Date(a.createdAt) : new Date(0));
+                const bCreatedAt = b.createdAt?.toDate ? b.createdAt.toDate() : (b.createdAt ? new Date(b.createdAt) : new Date(0));
+                return bCreatedAt.getTime() - aCreatedAt.getTime();
+            });
 
         return res.status(200).json({
             success: true,
@@ -1236,7 +1311,7 @@ const getTechnicianDashboard = async (req: Request, res: Response): Promise<any>
 const isTicketOverdue = (ticketData: any): boolean => {
     if (!ticketData.createdAt) return false;
     
-    const createdAt = ticketData.createdAt.toDate ? ticketData.createdAt.toDate() : new Date(ticketData.createdAt);
+    const createdAt = ticketData.createdAt?.toDate ? ticketData.createdAt.toDate() : (ticketData.createdAt ? new Date(ticketData.createdAt) : new Date());
     const now = new Date();
     const hoursSinceCreated = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
     
@@ -1277,7 +1352,7 @@ const getEstimatedDuration = (category: string, priority: string): string => {
 const getTicketDeadline = (ticketData: any): Date | null => {
     if (!ticketData.createdAt) return null;
     
-    const createdAt = ticketData.createdAt.toDate ? ticketData.createdAt.toDate() : new Date(ticketData.createdAt);
+    const createdAt = ticketData.createdAt?.toDate ? ticketData.createdAt.toDate() : (ticketData.createdAt ? new Date(ticketData.createdAt) : new Date());
     const deadline = new Date(createdAt);
     
     const deadlineHours = {
@@ -1298,8 +1373,8 @@ const calculateAvgCompletionTime = (completedTickets: any[]): string => {
     const totalHours = completedTickets.reduce((sum, ticket) => {
         if (!ticket.createdAt || !ticket.updatedAt) return sum;
         
-        const created = ticket.createdAt.toDate ? ticket.createdAt.toDate() : new Date(ticket.createdAt);
-        const completed = ticket.updatedAt.toDate ? ticket.updatedAt.toDate() : new Date(ticket.updatedAt);
+        const created = ticket.createdAt?.toDate ? ticket.createdAt.toDate() : (ticket.createdAt ? new Date(ticket.createdAt) : new Date());
+        const completed = ticket.updatedAt?.toDate ? ticket.updatedAt.toDate() : (ticket.updatedAt ? new Date(ticket.updatedAt) : new Date());
         
         const hours = (completed.getTime() - created.getTime()) / (1000 * 60 * 60);
         return sum + hours;
@@ -1316,7 +1391,7 @@ const calculateOnTimeRate = (completedTickets: any[]): number => {
         const deadline = getTicketDeadline(ticket);
         if (!deadline || !ticket.updatedAt) return false;
         
-        const completed = ticket.updatedAt.toDate ? ticket.updatedAt.toDate() : new Date(ticket.updatedAt);
+        const completed = ticket.updatedAt?.toDate ? ticket.updatedAt.toDate() : (ticket.updatedAt ? new Date(ticket.updatedAt) : new Date());
         return completed <= deadline;
     });
     
@@ -1365,7 +1440,7 @@ const getSpamTickets = async (req: Request, res: Response): Promise<any> => {
             return {
                 id: doc.id,
                 ...data,
-                timeSinceCreated: new Date().getTime() - (data.createdAt?.toDate?.()?.getTime() || 0)
+                timeSinceCreated: new Date().getTime() - (data.createdAt?.toDate ? data.createdAt.toDate().getTime() : 0)
             };
         });
 
