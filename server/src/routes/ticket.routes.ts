@@ -15,7 +15,8 @@ import {
     getTicketStats,
     getSpamTickets,
     markTicketAsSpam,
-    unmarkTicketAsSpam
+    unmarkTicketAsSpam,
+    debugImageProcessing
 } from "../controllers/ticket.controller.js";
 
 const router = Router();
@@ -40,6 +41,9 @@ router.get('/technician/:technicianId/dashboard', getTechnicianDashboard);
 
 // GET /api/tickets/spam - Get spam tickets (manager only)
 router.get('/spam', getSpamTickets);
+
+// POST /api/tickets/debug-images - Debug image processing
+router.post('/debug-images', debugImageProcessing);
 
 // POST /api/tickets/:id/mark-spam - Mark ticket as spam
 router.post('/:id/mark-spam', markTicketAsSpam);

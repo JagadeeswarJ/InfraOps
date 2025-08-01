@@ -26,6 +26,44 @@ const createTicket = async (req: Request, res: Response): Promise<any> => {
         // Handle both new 'images' field and legacy 'imageUrl' field
         const imageData = images || imageUrl || [];
 
+        console.log(`🎫 [TICKET_CREATE] Raw input data:`, {
+            title,
+            description: description?.substring(0, 100) + '...',
+            images: images?.length || 0,
+            imageUrl: Array.isArray(imageUrl) ? imageUrl.length : (imageUrl ? 'single' : 'none'),
+            imageData: Array.isArray(imageData) ? imageData.length : (imageData ? 'single' : 'none'),
+            reportedBy,
+            category,
+            location,
+            communityId
+        });
+
+        // Debug the actual imageUrl contents
+        if (imageUrl) {
+            console.log(`🎫 [TICKET_CREATE] ImageUrl details:`, {
+                isArray: Array.isArray(imageUrl),
+                length: Array.isArray(imageUrl) ? imageUrl.length : 'not array',
+                contents: Array.isArray(imageUrl) ? imageUrl.map((img, idx) => ({
+                    index: idx,
+                    value: img,
+                    type: typeof img,
+                    isNull: img === null,
+                    isUndefined: img === undefined,
+                    hasData: img?.startsWith ? img.startsWith('data:') : false
+                })) : `Single value: ${imageUrl}`
+            });
+        }
+
+        if (images && images.length > 0) {
+            console.log(`🖼️ [TICKET_CREATE] Images data:`, images.map((img, idx) => ({
+                index: idx,
+                type: typeof img,
+                isDataUrl: img?.startsWith ? img.startsWith('data:') : false,
+                length: img?.length || 0,
+                preview: img?.substring ? img.substring(0, 50) + '...' : 'not string'
+            })));
+        }
+
         // Validate required fields
         if (!title || !description || !reportedBy || !category || !location || !communityId) {
             return res.status(400).json({
@@ -49,11 +87,49 @@ const createTicket = async (req: Request, res: Response): Promise<any> => {
             });
         }
 
-        // Create initial ticket data
+        // Process images for storage - handle large images separately
+        // Filter out null, undefined, empty strings, and non-string values
+        const processedImages = Array.isArray(imageData) 
+            ? imageData.filter(img => img !== null && img !== undefined && typeof img === 'string' && img.trim().length > 0)
+            : (imageData && typeof imageData === 'string' && imageData.trim().length > 0 ? [imageData] : []);
+        
+        console.log(`🎫 [TICKET_CREATE] Image filtering:`, {
+            originalImageData: imageData,
+            originalLength: Array.isArray(imageData) ? imageData.length : (imageData ? 1 : 0),
+            afterFiltering: processedImages.length,
+            filteredOut: Array.isArray(imageData) ? imageData.length - processedImages.length : 0
+        });
+        
+        console.log(`🎫 [TICKET_CREATE] Processed images:`, {
+            originalImageData: imageData,
+            processedImages: processedImages.map((img, idx) => ({
+                index: idx,
+                type: typeof img,
+                isDataUrl: img?.startsWith ? img.startsWith('data:') : false,
+                length: img?.length || 0,
+                preview: img?.substring ? img.substring(0, 50) + '...' : 'not string'
+            }))
+        });
+
+        // Check if images are too large for direct storage (conservatively use 800KB limit for images)
+        const maxImageSizeForDirectStorage = 800000; // 800KB, leaving room for other fields
+        const largeImages: string[] = [];
+        const smallImages: string[] = [];
+        
+        processedImages.forEach((img) => {
+            if (typeof img === 'string' && img.length > maxImageSizeForDirectStorage) {
+                largeImages.push(img);
+                console.log(`📦 [TICKET_CREATE] Image ${largeImages.length} is large (${img.length} bytes), will store separately`);
+            } else {
+                smallImages.push(img);
+            }
+        });
+
+        // Create initial ticket data with only small images directly stored
         const ticketData: Ticket = {
             title,
             description,
-            images: Array.isArray(imageData) ? imageData.filter(img => img !== null) : (imageData ? [imageData] : []),
+            images: smallImages, // Only store small images directly in the document
             reportedBy,
             category,
             location,
@@ -63,14 +139,114 @@ const createTicket = async (req: Request, res: Response): Promise<any> => {
             createdAt: FieldValue.serverTimestamp() as any,
             updatedAt: FieldValue.serverTimestamp() as any
         };
+        
+        // Add metadata about large images
+        if (largeImages.length > 0) {
+            (ticketData as any).imageMetadata = {
+                totalImages: processedImages.length,
+                smallImagesCount: smallImages.length,
+                largeImagesCount: largeImages.length,
+                hasLargeImages: true
+            };
+        }
+
+        console.log(`💾 [TICKET_CREATE] Final ticket data to save:`, {
+            ...ticketData,
+            images: ticketData.images?.map((img, idx) => ({
+                index: idx,
+                type: typeof img,
+                isDataUrl: img?.startsWith ? img.startsWith('data:') : false,
+                length: img?.length || 0,
+                preview: img?.substring ? img.substring(0, 50) + '...' : 'not string'
+            }))
+        });
+
+        // Calculate document size for debugging
+        const docSizeEstimate = JSON.stringify(ticketData).length;
+        console.log(`📊 [TICKET_CREATE] Estimated document size: ${docSizeEstimate} bytes (${(docSizeEstimate / 1024 / 1024).toFixed(2)} MB)`);
+        
+        if (docSizeEstimate > 1000000) { // 1MB limit
+            console.warn(`⚠️ [TICKET_CREATE] Document size exceeds Firestore 1MB limit!`);
+        }
 
         // Save ticket to get ID first
-        const ticketRef = await db.collection('tickets').add(ticketData);
-        const ticketId = ticketRef.id;
-
+        let ticketRef;
+        let ticketId;
+        
         try {
-            // Process with AI for metadata, spam detection, and similar ticket detection
-            const aiResult = await processTicketWithAI(ticketData, ticketId, communityId);
+            ticketRef = await db.collection('tickets').add(ticketData);
+            ticketId = ticketRef.id;
+            
+            console.log(`✅ [TICKET_CREATE] Ticket saved to Firestore with ID: ${ticketId}`);
+            
+            // Verify the data was actually saved by immediately reading it back
+            const savedTicketDoc = await db.collection('tickets').doc(ticketId).get();
+            const savedTicketData = savedTicketDoc.data();
+            
+            console.log(`🔍 [TICKET_CREATE] Verification - saved ticket data:`, {
+                id: ticketId,
+                title: savedTicketData?.title,
+                images: savedTicketData?.images?.length || 0,
+                imagesData: savedTicketData?.images?.map((img: any, idx: number) => ({
+                    index: idx,
+                    type: typeof img,
+                    isDataUrl: img?.startsWith ? img.startsWith('data:') : false,
+                    length: img?.length || 0,
+                    preview: img?.substring ? img.substring(0, 50) + '...' : 'not string'
+                })) || 'no images'
+            });
+            
+            if (smallImages.length === 0 && processedImages.length > 0) {
+                console.error(`❌ [TICKET_CREATE] CRITICAL: Small images were not saved to database! Expected ${smallImages.length} small images.`);
+            }
+            
+            // Store large images in subcollection
+            if (largeImages.length > 0) {
+                console.log(`📦 [TICKET_CREATE] Storing ${largeImages.length} large images in subcollection...`);
+                try {
+                    const imagePromises = largeImages.map(async (imageData, index) => {
+                        const imageDoc = {
+                            imageData,
+                            index: smallImages.length + index, // Continue numbering after small images
+                            uploadedAt: FieldValue.serverTimestamp(),
+                            size: imageData.length
+                        };
+                        
+                        const imageRef = await db.collection('tickets')
+                            .doc(ticketId)
+                            .collection('images')
+                            .add(imageDoc);
+                        
+                        console.log(`✅ [TICKET_CREATE] Large image ${index + 1} stored with ID: ${imageRef.id}`);
+                        return imageRef.id;
+                    });
+                    
+                    const imageIds = await Promise.all(imagePromises);
+                    console.log(`✅ [TICKET_CREATE] All ${largeImages.length} large images stored successfully`);
+                    
+                    // Update ticket with references to large images
+                    await ticketRef.update({
+                        largeImageIds: imageIds,
+                        updatedAt: FieldValue.serverTimestamp()
+                    });
+                    
+                } catch (imageStoreError) {
+                    console.error(`❌ [TICKET_CREATE] Failed to store large images in subcollection:`, imageStoreError);
+                    // Don't fail the ticket creation, just log the error
+                }
+            }
+            
+        } catch (firestoreError) {
+            console.error(`❌ [TICKET_CREATE] Firestore save failed:`, firestoreError);
+            return res.status(500).json({
+                error: "Failed to save ticket to database",
+                details: firestoreError instanceof Error ? firestoreError.message : 'Unknown Firestore error'
+            });
+        }
+            
+            try {
+                // Process with AI for metadata, spam detection, and similar ticket detection
+                const aiResult = await processTicketWithAI(ticketData, ticketId, communityId);
 
             // Handle spam detection
             if (aiResult.isSpam) {
@@ -384,11 +560,23 @@ Respond with ONLY valid JSON:
         console.log(`[${processId}] Parsing AI response as JSON...`);
         let aiData;
         try {
-            aiData = JSON.parse(aiResponse);
+            // Clean the AI response - remove markdown code blocks if present
+            let cleanResponse = aiResponse.trim();
+            if (cleanResponse.startsWith('```json')) {
+                cleanResponse = cleanResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+            } else if (cleanResponse.startsWith('```')) {
+                cleanResponse = cleanResponse.replace(/^```\s*/, '').replace(/\s*```$/, '');
+            }
+            
+            console.log(`[${processId}] Cleaned response length: ${cleanResponse.length} characters`);
+            console.log(`[${processId}] First 200 chars of cleaned response: ${cleanResponse.substring(0, 200)}...`);
+            
+            aiData = JSON.parse(cleanResponse);
             console.log(`[${processId}] ✅ JSON parsing successful`);
             console.log(`[${processId}] 📊 Parsed AI Data:`, JSON.stringify(aiData, null, 2));
         } catch (parseError) {
             console.error(`[${processId}] ❌ JSON parsing failed:`, parseError);
+            console.error(`[${processId}] Raw response that failed to parse:`, aiResponse);
             throw new Error(`Failed to parse AI response as JSON: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
         }
 
@@ -535,12 +723,59 @@ const getTicket = async (req: Request, res: Response): Promise<any> => {
         }
 
         const ticketData = ticketDoc.data();
+        
+        // Get large images from subcollection if they exist
+        let allImages = ticketData?.images || [];
+        
+        if (ticketData?.largeImageIds && ticketData.largeImageIds.length > 0) {
+            console.log(`📦 [GET_TICKET] Retrieving ${ticketData.largeImageIds.length} large images from subcollection...`);
+            try {
+                const largeImagesQuery = await db.collection('tickets')
+                    .doc(id)
+                    .collection('images')
+                    .get();
+                
+                const largeImagesData = largeImagesQuery.docs
+                    .map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }))
+                    .sort((a: any, b: any) => a.index - b.index)
+                    .map((img: any) => img.imageData);
+                
+                console.log(`✅ [GET_TICKET] Retrieved ${largeImagesData.length} large images from subcollection`);
+                
+                // Merge small and large images in correct order
+                const smallImages = ticketData.images || [];
+                allImages = [...smallImages, ...largeImagesData];
+                
+            } catch (imageRetrievalError) {
+                console.error(`❌ [GET_TICKET] Failed to retrieve large images:`, imageRetrievalError);
+                // Continue with just small images
+            }
+        }
+        
+        console.log(`🔍 [GET_TICKET] Retrieved ticket ${id} from database:`, {
+            id,
+            title: ticketData?.title,
+            smallImages: ticketData?.images?.length || 0,
+            largeImages: ticketData?.largeImageIds?.length || 0,
+            totalImages: allImages.length,
+            imagesData: allImages.map((img: any, idx: number) => ({
+                index: idx,
+                type: typeof img,
+                isDataUrl: img?.startsWith ? img.startsWith('data:') : false,
+                length: img?.length || 0,
+                preview: img?.substring ? img.substring(0, 50) + '...' : 'not string'
+            }))
+        });
 
         return res.status(200).json({
             success: true,
             ticket: {
                 id: ticketDoc.id,
-                ...ticketData
+                ...ticketData,
+                images: allImages // Return combined images array
             }
         });
 
@@ -1545,6 +1780,80 @@ const unmarkTicketAsSpam = async (req: Request, res: Response): Promise<any> => 
     }
 };
 
+// Debug endpoint to test image processing
+const debugImageProcessing = async (req: Request, res: Response): Promise<any> => {
+    try {
+        console.log(`🔍 [DEBUG_IMAGES] Raw request body keys:`, Object.keys(req.body));
+        console.log(`🔍 [DEBUG_IMAGES] Request body:`, {
+            ...req.body,
+            images: req.body.images?.map((img: any, idx: number) => ({
+                index: idx,
+                type: typeof img,
+                isString: typeof img === 'string',
+                isDataUrl: img?.startsWith ? img.startsWith('data:') : false,
+                length: img?.length || 0,
+                preview: img?.substring ? img.substring(0, 50) + '...' : 'not string'
+            })) || 'no images field'
+        });
+
+        const { images, title = "Debug Test", description = "Debug ticket", reportedBy, category = "plumbing", location = "Test Location", communityId } = req.body;
+
+        // Process images exactly like the main function
+        const processedImages = Array.isArray(images) ? images.filter((img: any) => img !== null) : (images ? [images] : []);
+        
+        console.log(`🔍 [DEBUG_IMAGES] Processed images:`, {
+            originalCount: Array.isArray(images) ? images.length : (images ? 1 : 0),
+            processedCount: processedImages.length,
+            processedImages: processedImages.map((img: any, idx: number) => ({
+                index: idx,
+                type: typeof img,
+                isDataUrl: img?.startsWith ? img.startsWith('data:') : false,
+                length: img?.length || 0,
+                preview: img?.substring ? img.substring(0, 50) + '...' : 'not string'
+            }))
+        });
+
+        // Test document creation without actually saving
+        const testTicketData = {
+            title,
+            description,
+            images: processedImages,
+            reportedBy: reportedBy || 'debug-user',
+            category,
+            location,
+            communityId: communityId || 'debug-community',
+            createdAt: new Date(),
+            updatedAt: new Date()
+        };
+
+        const docSize = JSON.stringify(testTicketData).length;
+        console.log(`🔍 [DEBUG_IMAGES] Test document size: ${docSize} bytes (${(docSize / 1024 / 1024).toFixed(2)} MB)`);
+
+        return res.status(200).json({
+            success: true,
+            debug: {
+                receivedImages: Array.isArray(images) ? images.length : (images ? 1 : 0),
+                processedImages: processedImages.length,
+                documentSize: docSize,
+                wouldExceedLimit: docSize > 1000000,
+                imageDetails: processedImages.map((img: any, idx: number) => ({
+                    index: idx,
+                    type: typeof img,
+                    isDataUrl: img?.startsWith ? img.startsWith('data:') : false,
+                    size: img?.length || 0
+                }))
+            }
+        });
+
+    } catch (error) {
+        console.error("Debug image processing error:", error);
+        return res.status(500).json({
+            error: "Debug processing failed",
+            details: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+};
+
 export {
     createTicket,
     getTicket,
@@ -1561,5 +1870,6 @@ export {
     getTicketStats,
     getSpamTickets,
     markTicketAsSpam,
-    unmarkTicketAsSpam
+    unmarkTicketAsSpam,
+    debugImageProcessing
 };
