@@ -1,10 +1,35 @@
 {
   "permissions": {
     "allow": [
+      "Bash(cp:*)",
+      "Bash(find:*)",
+      "Bash(git:*)",
+      "Bash(grep:*)",
+      "Bash(ls:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(node:*)",
+      "Bash(npm cache clean:*)",
+      "Bash(npm init:*)",
       "Bash(npm install:*)",
-      "Bash(npx tailwindcss init:*)",
+      "Bash(npm ls:*)",
+      "Bash(npm outdated:*)",
       "Bash(npm run build:*)",
-      "Bash(npm ls:*)"
+      "Bash(npm run dev:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run preview:*)",
+      "Bash(npm run start:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npx prettier:*)",
+      "Bash(npx tailwindcss init:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx tsx:*)",
+      "Bash(npx vite:*)",
+      "Bash(pkill:*)",
+      "Bash(rm:*)",
+      "Bash(touch:*)",
+      "Bash(true)"
     ],
     "deny": []
   }

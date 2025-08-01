@@ -1,5 +1,3 @@
-import React from 'react';
-
 const Hero = () => {
   return (
     <section className="bg-gray-900 text-white text-center p-20">

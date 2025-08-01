@@ -1,5 +1,3 @@
-import React from 'react';
-
 const Features = () => {
   return (
     <section id="features" className="bg-gray-100 p-8">
