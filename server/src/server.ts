@@ -50,7 +50,7 @@ app.get("/log", (req: Request, res: Response) => {
     res.send(`Your IP is: ${realIp}`);
 });
 app.get("/", (req: Request, res: Response) => {
-    res.send({ message: "Server is working!" });
+    res.send({ message: "Server working!" });
 });
 app.get("/u-awake", (req: Request, res: Response) => {
     res.send({ message: "ya-awake" });
