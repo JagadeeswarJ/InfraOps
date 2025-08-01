@@ -1,5 +1,4 @@
 import { Link, useLocation } from "react-router-dom"
-import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
 
 export function Navbar() {
@@ -42,9 +41,6 @@ export function Navbar() {
             >
               Login
             </Link>
-            <Button size="sm" className="bg-primary text-primary-foreground hover:bg-[#262626] font-medium hover-lift hover-glow">
-              Get Started
-            </Button>
           </div>
         </div>
       </div>

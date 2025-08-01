@@ -62,7 +62,7 @@ export function HomePage() {
       buttonLink: "/login"
     },
     {
-      category: "For Administrators",
+      category: "For Managers",
       subtitle: "Manage Intelligently",
       description: "Predictive insights and automated reports for better management.",
       features: [
@@ -117,8 +117,17 @@ export function HomePage() {
           </div>
           
           <div className={`flex gap-4 justify-center transition-all duration-1000 delay-600 ${isVisible ? 'animate-scale-in opacity-100' : 'opacity-0'}`}>
-            <Button size="lg" className="bg-primary text-primary-foreground hover:bg-[#262626] px-8 py-3 text-base font-medium hover-lift hover-glow group">
-              <span className="group-hover:animate-pulse">Get Started</span>
+            <Button 
+              size="lg" 
+              className="bg-primary text-primary-foreground hover:bg-[#262626] hover:text-white px-8 py-3 text-base font-medium hover-lift hover-glow group"
+              onClick={() => {
+                const element = document.getElementById('what-we-offer-section');
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+            >
+              <span className="group-hover:animate-pulse">About Us</span>
             </Button>
             <Link to="/login">
               <Button variant="outline" size="lg" className="px-8 py-3 text-base border-border text-foreground hover:bg-accent hover-lift">
@@ -130,7 +139,7 @@ export function HomePage() {
       </section>
 
       {/* What We Offer Section - Properly Aligned with Generous Side Margins */}
-      <section className="py-20 px-12 bg-muted relative">
+      <section id="what-we-offer-section" className="py-20 px-12 bg-muted relative">
         <div className="max-w-4xl mx-auto">
           {/* Header aligned with cards */}
           <div className="text-center mb-16">
@@ -138,7 +147,7 @@ export function HomePage() {
               What We Offer
             </h2>
             <p className={`text-lg text-muted-foreground max-w-2xl mx-auto transition-all duration-1000 delay-200 ${isVisible ? 'animate-slide-in-right' : 'opacity-0'}`}>
-              Simple, powerful tools for residents, technicians, and administrators.
+              Simple, powerful tools for residents, technicians, and managers.
             </p>
           </div>
           

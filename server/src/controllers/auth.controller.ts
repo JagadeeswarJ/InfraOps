@@ -209,7 +209,17 @@ const verifyOTP = async (req: Request, res: Response): Promise<any> => {
         // Delete the OTP record
         await db.collection('otps').doc(otpDoc.id).delete();
 
-        // Return success response
+        // Generate JWT token for automatic login
+        const payload = {
+            userId: userRef.id,
+            email: newUser.email,
+            role: newUser.role
+        };
+        const secret = env.JWT_SECRET;
+        const options = { expiresIn: env.JWT_EXPIRES_IN } as any;
+        const token = jwt.sign(payload, secret, options);
+
+        // Return success response with user data and token
         const responseUser = {
             id: userRef.id,
             name: newUser.name,
@@ -221,7 +231,8 @@ const verifyOTP = async (req: Request, res: Response): Promise<any> => {
         return res.status(201).json({
             success: true,
             message: "Email verified and user registered successfully",
-            user: responseUser
+            user: responseUser,
+            token
         });
 
     } catch (error) {
