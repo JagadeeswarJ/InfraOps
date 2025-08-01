@@ -18,10 +18,19 @@ import { Loader2 } from "lucide-react"
 import Notification from "@/components/ui/notification"
 import loginBackground from "@/assets/images/login-background.png"
 
+interface Community {
+  id: string
+  name: string
+  location: string
+  isActive: boolean
+}
+
 export function AuthForm() {
   const [mode, setMode] = useState<"login" | "register">("login")
   const [role, setRole] = useState("resident")
   const [step, setStep] = useState<"details" | "otp">("details")
+  const [communities, setCommunities] = useState<Community[]>([])
+  const [communitiesLoading, setCommunitiesLoading] = useState(false)
   const [loginData, setLoginData] = useState({
     email: "",
     password: ""
@@ -70,6 +79,41 @@ export function AuthForm() {
     setNotification(prev => ({ ...prev, isVisible: false }))
   }
 
+  // Fetch communities
+  const fetchCommunities = async () => {
+    setCommunitiesLoading(true)
+    try {
+      const response = await api.get('/api/communities?isActive=true')
+      if (response.data.success) {
+        setCommunities(response.data.communities)
+      }
+    } catch (error) {
+      console.error('Error fetching communities:', error)
+      showNotification('error', 'Failed to load communities')
+    } finally {
+      setCommunitiesLoading(false)
+    }
+  }
+
+  // Load communities when component mounts
+  useEffect(() => {
+    fetchCommunities()
+  }, [])
+
+  // Helper function to get redirect URL based on user role
+  const getRedirectUrl = (userRole: string) => {
+    switch (userRole) {
+      case 'manager':
+        return '/dashboard'
+      case 'resident':
+        return '/user-dashboard'
+      case 'technician':
+        return '/technician-dashboard'
+      default:
+        return '/dashboard'
+    }
+  }
+
   // Countdown timer for resend OTP
   useEffect(() => {
     let timer: NodeJS.Timeout
@@ -106,9 +150,11 @@ export function AuthForm() {
       if (response.data.success) {
         localStorage.setItem(TOKEN_STORE, response.data.token)
         showNotification('success', 'Login successful! Welcome back.')
-        // Redirect to dashboard
+        // Redirect based on user role
+        const userRole = response.data.user?.role || 'resident'
+        const redirectUrl = getRedirectUrl(userRole)
         setTimeout(() => {
-          window.location.href = '/dashboard'
+          window.location.href = redirectUrl
         }, 1500)
       }
     } catch (error: any) {
@@ -185,6 +231,13 @@ export function AuthForm() {
       return
     }
 
+    // Community is required for residents
+    if (role === "resident" && !formData.communityId) {
+      showNotification('error', 'Please select a community')
+      setIsLoading(false)
+      return
+    }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(formData.email)) {
       showNotification('error', 'Please enter a valid email address')
@@ -256,9 +309,11 @@ export function AuthForm() {
         if (response.data.token) {
           localStorage.setItem(TOKEN_STORE, response.data.token)
           showNotification('success', 'Account created and logged in successfully! Welcome!')
-          // Redirect to dashboard
+          // Redirect based on user role
+          const userRole = response.data.user?.role || role
+          const redirectUrl = getRedirectUrl(userRole)
           setTimeout(() => {
-            window.location.href = '/dashboard'
+            window.location.href = redirectUrl
           }, 1500)
         } else {
           showNotification('success', 'OTP verified successfully! Account created. Please sign in.')
@@ -512,22 +567,57 @@ export function AuthForm() {
                           />
                         </div>
 
-                        {/* Community ID Field (Only for Residents) */}
-                        {role === "resident" && (
-                          <div className="space-y-2">
-                            <Label htmlFor="communityId" className="text-gray-700 font-medium">
-                              Community ID <span className="text-gray-500 text-sm font-normal">(Optional)</span>
-                            </Label>
-                            <Input
-                              id="communityId"
-                              type="text"
-                              placeholder="Enter community ID if available"
-                              value={formData.communityId}
-                              onChange={(e) => handleInputChange("communityId", e.target.value)}
-                              className="bg-white border-gray-300 hover:border-gray-400 focus:border-gray-900 transition-colors"
-                            />
-                          </div>
-                        )}
+                        {/* Community Selection */}
+                        <div className="space-y-2">
+                          <Label htmlFor="communityId" className="text-gray-700 font-medium">
+                            Community {role === "resident" ? <span className="text-red-500">*</span> : <span className="text-gray-500 text-sm font-normal">(Optional)</span>}
+                          </Label>
+                          <Select 
+                            value={formData.communityId} 
+                            onValueChange={(value) => handleInputChange("communityId", value)}
+                            disabled={communitiesLoading}
+                          >
+                            <SelectTrigger className="bg-white border-gray-300 hover:border-gray-400 focus:border-gray-900 transition-colors">
+                              <SelectValue placeholder={
+                                communitiesLoading 
+                                  ? "Loading communities..." 
+                                  : communities.length === 0
+                                    ? "No communities available"
+                                    : role === "resident"
+                                      ? "Select your community"
+                                      : "Select community (optional)"
+                              } />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {communities.map((community) => (
+                                <SelectItem key={community.id} value={community.id}>
+                                  <div className="flex flex-col">
+                                    <span className="font-medium">{community.name}</span>
+                                    <span className="text-xs text-gray-500">{community.location}</span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                              {communities.length === 0 && !communitiesLoading && (
+                                <SelectItem value="" disabled>
+                                  No communities available
+                                </SelectItem>
+                              )}
+                            </SelectContent>
+                          </Select>
+                          
+                          {communitiesLoading && (
+                            <div className="flex items-center text-xs text-gray-500">
+                              <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                              Loading communities...
+                            </div>
+                          )}
+                          
+                          {communities.length === 0 && !communitiesLoading && (
+                            <div className="text-xs text-gray-500">
+                              No communities found. Please contact support if you need to create a community.
+                            </div>
+                          )}
+                        </div>
 
                         {/* Expertise Field (Only for Technicians) */}
                         {role === "technician" && (

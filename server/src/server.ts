@@ -3,6 +3,8 @@ import cors from "cors";
 import authRoute from "./routes/auth.route.js";
 import aiRoute from "./routes/ai.route.js";
 import communityRoute from "./routes/community.routes.js";
+import ticketRoute from "./routes/ticket.routes.js";
+import notificationRoute from "./routes/notification.routes.js";
 
 const app = express();
 const PORT = 3000;
@@ -24,7 +26,9 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/auth", authRoute);
 app.use("/ai", aiRoute);
-app.use("/communities", communityRoute);
+app.use("/api/communities", communityRoute);
+app.use("/api/tickets", ticketRoute);
+app.use("/api/notifications", notificationRoute);
 
 app.use((err: any, req: Request, res: Response, next: any) => {
   console.error(err.stack);

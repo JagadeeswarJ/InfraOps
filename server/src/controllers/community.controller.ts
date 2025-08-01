@@ -87,24 +87,32 @@ const getCommunities = async (req: Request, res: Response): Promise<any> => {
     try {
         const { isActive, managerId } = req.query;
 
-        let query = db.collection('communities').orderBy('createdAt', 'desc');
+        let query: any = db.collection('communities');
+
+        // Filter by manager first if provided (most selective filter)
+        if (managerId) {
+            query = query.where('managerId', '==', managerId);
+        }
 
         // Filter by active status if provided
         if (isActive !== undefined) {
             query = query.where('isActive', '==', isActive === 'true');
         }
 
-        // Filter by manager if provided
-        if (managerId) {
-            query = query.where('managerId', '==', managerId);
-        }
-
         const communitySnapshot = await query.get();
 
-        const communities = communitySnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
+        // Sort in memory to avoid index requirement
+        const communities = communitySnapshot.docs
+            .map((doc: any) => ({
+                id: doc.id,
+                ...doc.data()
+            }))
+            .sort((a: any, b: any) => {
+                // Sort by createdAt descending (newest first)
+                const aTime = a.createdAt?.seconds || 0;
+                const bTime = b.createdAt?.seconds || 0;
+                return bTime - aTime;
+            });
 
         return res.status(200).json({
             success: true,

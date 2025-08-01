@@ -37,16 +37,45 @@ export function Navbar() {
             
             {isAuthenticated ? (
               <>
-                <Link 
-                  to="/dashboard" 
-                  className={`text-sm font-medium transition-all duration-300 hover:scale-105 ${
-                    location.pathname === '/dashboard' 
-                      ? 'text-foreground border-b-2 border-primary' 
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  Dashboard
-                </Link>
+                {/* Show appropriate dashboard link based on user role */}
+                {user?.role === 'manager' && (
+                  <Link 
+                    to="/dashboard" 
+                    className={`text-sm font-medium transition-all duration-300 hover:scale-105 ${
+                      location.pathname === '/dashboard' 
+                        ? 'text-foreground border-b-2 border-primary' 
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    Dashboard
+                  </Link>
+                )}
+                
+                {user?.role === 'resident' && (
+                  <Link 
+                    to="/user-dashboard" 
+                    className={`text-sm font-medium transition-all duration-300 hover:scale-105 ${
+                      location.pathname === '/user-dashboard' 
+                        ? 'text-foreground border-b-2 border-primary' 
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    My Dashboard
+                  </Link>
+                )}
+                
+                {user?.role === 'technician' && (
+                  <Link 
+                    to="/technician-dashboard" 
+                    className={`text-sm font-medium transition-all duration-300 hover:scale-105 ${
+                      location.pathname === '/technician-dashboard' 
+                        ? 'text-foreground border-b-2 border-primary' 
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    Work Dashboard
+                  </Link>
+                )}
                 
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-muted-foreground">

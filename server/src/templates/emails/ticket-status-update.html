@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Status Update</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .status-update {
+            background: #f8f9fa;
+            border: 2px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .status-change {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+        .status-open { background: #17a2b8; color: white; }
+        .status-assigned { background: #ffc107; color: #212529; }
+        .status-in_progress { background: #fd7e14; color: white; }
+        .status-resolved { background: #28a745; color: white; }
+        .status-closed { background: #6c757d; color: white; }
+        .arrow {
+            font-size: 24px;
+            color: #28a745;
+            margin: 0 10px;
+        }
+        .ticket-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Ticket Status Update</h1>
+            <p>Your maintenance ticket has been updated</p>
+        </div>
+        
+        <div class="content">
+            <p>Hello <strong>{{user.name}}</strong>,</p>
+            
+            <p>We wanted to update you on the status of your maintenance request.</p>
+            
+            <div class="status-update">
+                <div class="status-change">
+                    <span class="status-badge status-{{data.previousStatus}}">{{data.previousStatus}}</span>
+                    <span class="arrow">→</span>
+                    <span class="status-badge status-{{data.newStatus}}">{{data.newStatus}}</span>
+                </div>
+            </div>
+            
+            <div class="ticket-info">
+                <h3>{{ticket.title}}</h3>
+                <p><strong>Category:</strong> {{ticket.category}}</p>
+                <p><strong>Location:</strong> {{ticket.location}}</p>
+                <p><strong>Updated on:</strong> {{timestamp}}</p>
+            </div>
+            
+            {{#if data.newStatus === 'resolved'}}
+            <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Great news!</strong> Your maintenance request has been completed. 
+                Please take a moment to provide feedback on the service you received.
+            </div>
+            {{/if}}
+            
+            {{#if data.newStatus === 'in_progress'}}
+            <div style="background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong>Work in Progress:</strong> Our technician is currently working on your request. 
+                You may be contacted if additional information is needed.
+            </div>
+            {{/if}}
+            
+            <p>If you have any questions or concerns, please don't hesitate to contact us.</p>
+        </div>
+        
+        <div class="footer">
+            <p>This is an automated notification from Bitnap Maintenance System</p>
+            <p>© 2024 Bitnap. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
