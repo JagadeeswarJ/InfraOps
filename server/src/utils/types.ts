@@ -3,7 +3,6 @@
 export type UserRole = 'resident' | 'technician' | 'manager';
 
 export interface Community {
-    id: string;
     name: string;
     managerId: string; // userId of the manager who registered the community
     location: string; // Physical location of the community
@@ -13,21 +12,19 @@ export interface Community {
 }
 
 export interface User {
-    id: string; // Firestore UID
     name: string;
     email: string;
+    password: string;
     phone?: string;
     role: UserRole;
     expertise?: string[]; // For technicians: ['plumbing', 'electrical']
     communityId?: string; // ID of the community the user belongs to
-    preferredLanguage?: string;
     createdAt: FirebaseFirestore.Timestamp;
 }
 
 export type TicketStatus = 'open' | 'assigned' | 'in_progress' | 'resolved' | 'closed';
 
 export interface Ticket {
-    id: string;
     title: string;
     description: string;
     imageUrl?: string;
@@ -47,7 +44,6 @@ export interface Ticket {
     };
 }
 export interface Notification {
-    id: string;
     userId: string;
     type: 'ticket_status' | 'assignment' | 'feedback_request';
     ticketId?: string;
@@ -56,12 +52,19 @@ export interface Notification {
     read: boolean;
 }
 export interface Feedback {
-    id: string;
     ticketId: string;
     residentId: string;
     technicianId?: string;
     rating: number; // 1–5
     comment?: string;
+    createdAt: FirebaseFirestore.Timestamp;
+}
+
+export interface OTP {
+    email: string;
+    otp: string;
+    userData: Omit<User, 'createdAt'>; // Store user data temporarily
+    expiresAt: FirebaseFirestore.Timestamp;
     createdAt: FirebaseFirestore.Timestamp;
 }
 

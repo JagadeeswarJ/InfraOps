@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import authRoute from "./routes/auth.route.js";
+import aiRoute from "./routes/ai.route.js";
 
 const app = express();
 const PORT = 3000;
@@ -14,6 +15,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/auth", authRoute);
+app.use("/ai", aiRoute);
 
 
 app.listen(PORT, () => {
