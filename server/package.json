@@ -1,5 +1,5 @@
 {
-  "name": "tvhackathon2-server",
+  "name": "bitnap-server",
   "version": "1.0.0",
   "description": "",
   "main": "api/index.ts",
