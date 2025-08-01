@@ -5,7 +5,7 @@ export const TOKEN_STORE = "bitnap-token";
 export const api = axios.create({
   baseURL: import.meta.env.DEV
     ? "http://localhost:3000"
-    : "https://api.vjdataquesters.com",
+    : "https://bitnap-server.onrender.com"
 });
 
 api.interceptors.request.use((config) => {
