@@ -1,39 +1,23 @@
 import express, { Request, Response } from "express";
-import dotenv from 'dotenv';
-dotenv.config();
-import axios from "axios";
 import cors from "cors";
-import authRouter from "./routes/auth.js";
+import authRoute from "./routes/auth.route.js";
+import aiRoute from "./routes/ai.route.js";
 
 const app = express();
-const url = "https://bitnap-server.onrender.com/"
-const interval = 1000 * 60 * 10; // 5 minutes in milliseconds
-app.use(express.json());
+const PORT = 3000;
+
 app.use(cors());
+app.use(express.json());
 app.set("trust proxy", true);
 
-function pingServer() {
-    axios
-        .get(url + "/u-awake")
-        .then((response) => {
-            console.log("website reloded");
-        })
-        .catch((error) => {
-            console.error(`Error : ${error.message}`);
-        });
-}
-setInterval(pingServer, interval);
-
-app.use("/auth", authRouter);
-
 app.get("/", (req: Request, res: Response) => {
-    res.send({ message: "Server working!" });
+  res.send({ message: "Server is working!" });
 });
 
-app.get("/u-awake", (req: Request, res: Response) => {
-    res.send({ message: "Server is awake!" });
-});
+app.use("/auth", authRoute);
+app.use("/ai", aiRoute);
 
-app.listen(3000, () => {
-    console.log(`Server is running on port 3000`);
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

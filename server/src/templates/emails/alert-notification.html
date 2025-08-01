@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}} - Bitnap</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+        }
+        .header.urgent {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        .header.info {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+        .header.success {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        }
+        .header.warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 300;
+        }
+        .alert-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .greeting {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .alert-content {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+            border-left: 5px solid #3498db;
+        }
+        .alert-content.urgent {
+            border-left-color: #e74c3c;
+            background-color: #fdf2f2;
+        }
+        .alert-content.warning {
+            border-left-color: #f39c12;
+            background-color: #fefbf3;
+        }
+        .alert-content.success {
+            border-left-color: #27ae60;
+            background-color: #f2fdf6;
+        }
+        .alert-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        .alert-message {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #555;
+        }
+        .alert-details {
+            background-color: #ffffff;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid #e9ecef;
+        }
+        .action-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px 30px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        .footer p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .brand {
+            color: #667eea;
+            font-weight: bold;
+        }
+        .timestamp {
+            font-size: 12px;
+            color: #95a5a6;
+            text-align: right;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header {{alertType}}">
+            <div class="alert-icon">{{icon}}</div>
+            <h1>{{title}}</h1>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                Hello {{name}},
+            </div>
+            
+            <div class="alert-content {{alertType}}">
+                <div class="alert-title">{{alertTitle}}</div>
+                <div class="alert-message">{{message}}</div>
+                
+                <div class="alert-details">
+                    {{details}}
+                </div>
+                
+                <a href="{{actionUrl}}" class="action-button">{{actionText}}</a>
+            </div>
+            
+            <div class="timestamp">
+                Alert generated on {{timestamp}}
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Best regards,</p>
+            <p><strong>The Bitnap Team</strong></p>
+            <p style="margin-top: 20px; font-size: 12px;">
+                You are receiving this alert because you are subscribed to <span class="brand">Bitnap</span> notifications.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

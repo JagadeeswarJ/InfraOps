@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Bitnap</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 300;
+        }
+        .welcome-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .greeting {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            text-align: center;
+        }
+        .welcome-message {
+            font-size: 16px;
+            margin-bottom: 30px;
+            color: #555;
+            text-align: center;
+        }
+        .account-details {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            padding: 25px;
+            margin: 30px 0;
+            border-left: 5px solid #667eea;
+        }
+        .account-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        .account-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+        }
+        .info-label {
+            font-weight: bold;
+            color: #34495e;
+        }
+        .info-value {
+            color: #2c3e50;
+        }
+        .features {
+            margin: 30px 0;
+        }
+        .features h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-item {
+            background-color: #f8f9fa;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 3px solid #667eea;
+        }
+        .feature-icon {
+            color: #667eea;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .cta-section {
+            text-align: center;
+            margin: 40px 0;
+            padding: 30px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+        }
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .support-section {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+        .support-title {
+            color: #856404;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .support-text {
+            color: #856404;
+            font-size: 14px;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        .footer p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .brand {
+            color: #667eea;
+            font-weight: bold;
+        }
+        .social-links {
+            margin-top: 20px;
+        }
+        .social-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="welcome-icon">🎉</div>
+            <h1>Welcome to Bitnap!</h1>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                Welcome, {{name}}!
+            </div>
+            
+            <div class="welcome-message">
+                Congratulations! Your account has been successfully created. You're now part of the <span class="brand">Bitnap</span> community management platform.
+            </div>
+            
+            <div class="account-details">
+                <div class="account-title">Your Account Details</div>
+                <div class="account-info">
+                    <span class="info-label">Email</span>
+                    <span class="info-value">{{email}}</span>
+                </div>
+                <div class="account-info">
+                    <span class="info-label">Role</span>
+                    <span class="info-value">{{role}}</span>
+                </div>
+                <div class="account-info">
+                    <span class="info-label">Community</span>
+                    <span class="info-value">{{communityName}}</span>
+                </div>
+                <div class="account-info">
+                    <span class="info-label">Expertise</span>
+                    <span class="info-value">{{expertise}}</span>
+                </div>
+            </div>
+            
+            <div class="features">
+                <h3>What you can do with Bitnap:</h3>
+                <ul class="feature-list">
+                    <li class="feature-item">
+                        <span class="feature-icon">🏠</span>
+                        Manage community issues and maintenance requests
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">🔧</span>
+                        Connect with skilled technicians in your area
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">📊</span>
+                        Track resolution progress and service history
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">🔔</span>
+                        Receive real-time notifications and updates
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">💬</span>
+                        Communicate directly with service providers
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="cta-section">
+                <h3>Ready to get started?</h3>
+                <p>Access your dashboard and start managing your community efficiently.</p>
+                <a href="{{dashboardUrl}}" class="cta-button">Go to Dashboard</a>
+            </div>
+            
+            <div class="support-section">
+                <div class="support-title">🛠️ Need Help Getting Started?</div>
+                <div class="support-text">
+                    Our support team is here to help! If you have any questions or need assistance setting up your account, don't hesitate to reach out to us.
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Thank you for choosing <span class="brand">Bitnap</span>!</p>
+            <p><strong>The Bitnap Team</strong></p>
+            <div class="social-links">
+                <a href="#">Support Center</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+            </div>
+            <p style="margin-top: 20px; font-size: 12px;">
+                This is an automated welcome email. Please do not reply to this message.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
