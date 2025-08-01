@@ -28,6 +28,9 @@ const router = [
   { path: "/pricing", component: Pricing },
   { path: "/event/orgdsh", component: OrganizerDashboard },
   { path: "/event/studsh", component: Test },
+  { path: "/event/studsh7", component: Test },
+  
+
 ];
 
 export default router;
