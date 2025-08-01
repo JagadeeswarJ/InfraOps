@@ -1,6 +1,7 @@
 
 import { Request, Response } from "express";
 import jwt, { SignOptions } from "jsonwebtoken";
+import type { StringValue } from "ms";
 import { env } from "../config/env.config.ts"
 import { db } from "../config/db.config.ts";
 import { User, UserRole, OTP } from "../utils/types.ts";
@@ -135,8 +136,8 @@ const login = async (req: Request, res: Response): Promise<any> => {
             communityId: userData.communityId,
             expertise: userData.expertise
         };
-        const secret = env.JWT_SECRET;
-        const options: SignOptions = { expiresIn: env.JWT_EXPIRES_IN };
+        const secret = env.JWT_SECRET as string;
+        const options: SignOptions = { expiresIn: env.JWT_EXPIRES_IN as StringValue };
         const token = jwt.sign(payload, secret, options);
 
         // Return user data with document ID (without password)
@@ -227,8 +228,8 @@ const verifyOTP = async (req: Request, res: Response): Promise<any> => {
             communityId: newUser.communityId,
             expertise: newUser.expertise
         };
-        const secret = env.JWT_SECRET;
-        const options: SignOptions = { expiresIn: env.JWT_EXPIRES_IN };
+        const secret = env.JWT_SECRET as string;
+        const options: SignOptions = { expiresIn: env.JWT_EXPIRES_IN as StringValue };
         const token = jwt.sign(payload, secret, options);
 
         // Return success response with user data and token
