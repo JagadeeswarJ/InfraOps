@@ -1,9 +1,12 @@
 import { Link, useLocation } from "react-router-dom"
 import { useState, useEffect } from "react"
+import { useAuth } from "../contexts/AuthContext"
+import { Button } from "@/components/ui/button"
 
 export function Navbar() {
   const location = useLocation()
   const [isScrolled, setIsScrolled] = useState(false)
+  const { user, logout, isAuthenticated } = useAuth()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,16 +34,46 @@ export function Navbar() {
             >
               Home
             </Link>
-            <Link 
-              to="/login" 
-              className={`text-sm font-medium transition-all duration-300 hover:scale-105 ${
-                location.pathname === '/login' 
-                  ? 'text-foreground border-b-2 border-primary' 
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              Login
-            </Link>
+            
+            {isAuthenticated ? (
+              <>
+                <Link 
+                  to="/dashboard" 
+                  className={`text-sm font-medium transition-all duration-300 hover:scale-105 ${
+                    location.pathname === '/dashboard' 
+                      ? 'text-foreground border-b-2 border-primary' 
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Dashboard
+                </Link>
+                
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-muted-foreground">
+                    Welcome, {user?.name}
+                  </span>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={logout}
+                    className="border-border text-foreground hover:bg-accent"
+                  >
+                    Logout
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <Link 
+                to="/login" 
+                className={`text-sm font-medium transition-all duration-300 hover:scale-105 ${
+                  location.pathname === '/login' 
+                    ? 'text-foreground border-b-2 border-primary' 
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Login
+              </Link>
+            )}
           </div>
         </div>
       </div>

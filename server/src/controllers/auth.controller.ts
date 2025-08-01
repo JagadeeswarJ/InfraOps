@@ -1,12 +1,11 @@
 
 import { Request, Response } from "express";
-import * as jwt from "jsonwebtoken";
-import { SignOptions } from "jsonwebtoken";
-import { env } from "../config/env.config.js"
-import { db } from "../config/db.config.js";
-import { User, UserRole, OTP } from "../utils/types.js";
+import jwt, { SignOptions } from "jsonwebtoken";
+import { env } from "../config/env.config.ts"
+import { db } from "../config/db.config.ts";
+import { User, UserRole, OTP } from "../utils/types.ts";
 import { FieldValue } from "firebase-admin/firestore";
-import { generateOTP, sendOTPEmail } from "../utils/email.util.js";
+import { generateOTP, sendOTPEmail } from "../utils/email.util.ts";
 
 const onBoarding = async (req: Request, res: Response): Promise<any> => {
     try {
@@ -19,7 +18,7 @@ const onBoarding = async (req: Request, res: Response): Promise<any> => {
             expertise,
             communityId,
         } = req.body;
-
+        console.log(name, email, password, phone, role, expertise, communityId);
         // Validate required fields
         if (!name || !email || !password || !role) {
             return res.status(400).json({
@@ -62,7 +61,7 @@ const onBoarding = async (req: Request, res: Response): Promise<any> => {
             userData: {
                 name,
                 email,
-                password,
+                password: password, // Store plain text password
                 phone: phone || undefined,
                 role,
                 expertise: role === 'technician' ? expertise : undefined,
@@ -93,17 +92,21 @@ const onBoarding = async (req: Request, res: Response): Promise<any> => {
 };
 
 const login = async (req: Request, res: Response): Promise<any> => {
+    console.log("Login function called");
     try {
+        console.log("hello")
         const { email, password } = req.body;
-
         // Validate required fields
         if (!email || !password) {
             return res.status(400).json({
                 error: "Missing required fields: email, password"
             });
         }
-
+        console.log(email,password)
+        console.log("Database instance:", db ? "Connected" : "Not connected");
+        
         // Find user by email
+        console.log("Querying users collection for email:", email);
         const userQuery = await db.collection('users').where('email', '==', email).get();
         
         if (userQuery.empty) {
@@ -115,8 +118,8 @@ const login = async (req: Request, res: Response): Promise<any> => {
         // Get the first (and should be only) user document
         const userDoc = userQuery.docs[0];
         const userData = userDoc.data() as User;
-
-        // Verify password (plain text comparison)
+        console.log(userData)
+        // Verify password using plain text comparison
         if (userData.password !== password) {
             return res.status(401).json({
                 error: "Invalid email or password"
@@ -126,11 +129,14 @@ const login = async (req: Request, res: Response): Promise<any> => {
         // Generate JWT token
         const payload = {
             userId: userDoc.id,
+            name: userData.name,
             email: userData.email,
-            role: userData.role
+            role: userData.role,
+            communityId: userData.communityId,
+            expertise: userData.expertise
         };
         const secret = env.JWT_SECRET;
-        const options = { expiresIn: env.JWT_EXPIRES_IN } as any;
+        const options: SignOptions = { expiresIn: env.JWT_EXPIRES_IN };
         const token = jwt.sign(payload, secret, options);
 
         // Return user data with document ID (without password)
@@ -151,8 +157,11 @@ const login = async (req: Request, res: Response): Promise<any> => {
 
     } catch (error) {
         console.error("Login error:", error);
+        console.error("Error stack:", error instanceof Error ? error.stack : 'No stack trace');
+        console.error("Error message:", error instanceof Error ? error.message : 'Unknown error');
         return res.status(500).json({
-            error: "Internal server error during login"
+            error: "Internal server error during login",
+            details: error instanceof Error ? error.message : 'Unknown error'
         });
     }
 };
@@ -212,11 +221,14 @@ const verifyOTP = async (req: Request, res: Response): Promise<any> => {
         // Generate JWT token for automatic login
         const payload = {
             userId: userRef.id,
+            name: newUser.name,
             email: newUser.email,
-            role: newUser.role
+            role: newUser.role,
+            communityId: newUser.communityId,
+            expertise: newUser.expertise
         };
         const secret = env.JWT_SECRET;
-        const options = { expiresIn: env.JWT_EXPIRES_IN } as any;
+        const options: SignOptions = { expiresIn: env.JWT_EXPIRES_IN };
         const token = jwt.sign(payload, secret, options);
 
         // Return success response with user data and token

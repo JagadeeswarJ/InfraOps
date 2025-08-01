@@ -1,6 +1,6 @@
 import { initializeApp, cert, ServiceAccount } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
-import { env } from "./env.config.js";
+import { env } from "./env.config.ts";
 import { getStorage } from "firebase-admin/storage";
 
 const serviceAccountKey: ServiceAccount = {

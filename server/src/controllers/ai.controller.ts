@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { callGemini } from "../utils/gemini.util.js";
+import { callGemini } from "../utils/gemini.util.ts";
 
 export const testGemini = async (req: Request, res: Response): Promise<any> => {
     try {
