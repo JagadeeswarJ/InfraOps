@@ -1,11 +1,17 @@
+import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Plus, Edit, Trash2, Building, Users, Loader2 } from "lucide-react"
 import { useAuth } from "../contexts/AuthContext"
+import { api } from "@/utils/api"
+import Notification from "@/components/ui/notification"
 
 export function Dashboard() {
   const { user } = useAuth()
-
+  console.log(user)
   const getRoleDisplay = (role: string) => {
     switch (role) {
       case 'resident': return 'Resident'

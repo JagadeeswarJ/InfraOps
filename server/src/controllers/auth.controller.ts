@@ -2,11 +2,11 @@
 import { Request, Response } from "express";
 import jwt, { SignOptions } from "jsonwebtoken";
 import type { StringValue } from "ms";
-import { env } from "../config/env.config.ts"
-import { db } from "../config/db.config.ts";
-import { User, UserRole, OTP } from "../utils/types.ts";
+import { env } from "../config/env.config.js"
+import { db } from "../config/db.config.js";
+import { User, UserRole, OTP } from "../utils/types.js";
 import { FieldValue } from "firebase-admin/firestore";
-import { generateOTP, sendOTPEmail } from "../utils/email.util.ts";
+import { generateOTP, sendOTPEmail } from "../utils/email.util.js";
 
 const onBoarding = async (req: Request, res: Response): Promise<any> => {
     try {

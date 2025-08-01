@@ -1,6 +1,6 @@
 import express, { Router } from "express";
 import expressAsyncHandler from "express-async-handler";
-import { testGemini } from "../controllers/ai.controller.ts";
+import { testGemini } from "../controllers/ai.controller.js";
 
 const aiRoute: Router = express.Router();
 

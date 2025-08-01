@@ -7,8 +7,12 @@ export interface Community {
     managerId: string; // userId of the manager who registered the community
     location: string; // Physical location of the community
     description?: string;
-    createdAt: number;
-    updatedAt: number;
+    address?: string; // Full address
+    contactEmail?: string;
+    contactPhone?: string;
+    isActive: boolean;
+    createdAt: FirebaseFirestore.Timestamp;
+    updatedAt: FirebaseFirestore.Timestamp;
 }
 
 export interface User {

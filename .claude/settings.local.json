@@ -29,8 +29,10 @@
       "Bash(pkill:*)",
       "Bash(rm:*)",
       "Bash(touch:*)",
-      "Bash(true)"
+      "Bash(true)",
+      "Bash(timeout 5 npm start)"
     ],
     "deny": []
-  }
+  },
+  "$schema": "https://json.schemastore.org/claude-code-settings.json"
 }
