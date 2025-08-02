@@ -12,6 +12,7 @@ import {
 const aiRoute: Router = express.Router();
 
 aiRoute.post("/test-gemini", expressAsyncHandler(testGemini));
+
 aiRoute.post("/analyze-image", expressAsyncHandler(analyzeTicketImage));
 aiRoute.post("/suggest-solution", expressAsyncHandler(suggestSolution));
 aiRoute.post("/categorize-ticket", expressAsyncHandler(categorizeTicket));

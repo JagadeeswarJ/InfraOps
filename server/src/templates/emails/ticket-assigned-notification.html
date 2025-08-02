@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Ticket Assignment</title>
+    <title>Your Ticket Has Been Assigned</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -22,7 +22,7 @@
             overflow: hidden;
         }
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             color: white;
             padding: 30px;
             text-align: center;
@@ -36,7 +36,7 @@
         }
         .ticket-card {
             background: #f8f9fa;
-            border-left: 4px solid #007bff;
+            border-left: 4px solid #28a745;
             padding: 20px;
             margin: 20px 0;
             border-radius: 0 8px 8px 0;
@@ -44,7 +44,7 @@
         .ticket-title {
             font-size: 18px;
             font-weight: bold;
-            color: #007bff;
+            color: #28a745;
             margin-bottom: 10px;
         }
         .ticket-details {
@@ -91,15 +91,36 @@
             font-size: 12px;
             display: inline-block;
         }
-        .cta-button {
-            display: inline-block;
-            background: #007bff;
-            color: white;
-            padding: 12px 24px;
-            text-decoration: none;
-            border-radius: 6px;
+        .technician-card {
+            background: #e8f5e8;
+            border: 1px solid #28a745;
+            border-radius: 12px;
+            padding: 20px;
             margin: 20px 0;
+        }
+        .technician-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .technician-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        .technician-name {
             font-weight: bold;
+            color: #28a745;
+            font-size: 18px;
+        }
+        .status-badge {
+            background: #28a745;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 10px 0;
         }
         .footer {
             background: #f8f9fa;
@@ -107,6 +128,16 @@
             text-align: center;
             color: #666;
             font-size: 14px;
+        }
+        .timeline {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .timeline h4 {
+            color: #28a745;
+            margin: 0 0 10px 0;
         }
         @media (max-width: 600px) {
             .ticket-details {
@@ -118,14 +149,16 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🔧 New Ticket Assignment</h1>
-            <p>You have been assigned a new maintenance ticket</p>
+            <h1>✅ Ticket Assigned</h1>
+            <p>Your maintenance request has been assigned to a technician</p>
         </div>
         
         <div class="content">
             <p>Hello <strong>{{user.name}}</strong>,</p>
             
-            <p>A new maintenance ticket has been assigned to you. Please review the details below and take appropriate action.</p>
+            <p>Great news! Your maintenance ticket has been assigned to a qualified technician who will resolve your issue.</p>
+            
+            <div class="status-badge">Status: Assigned</div>
             
             <div class="ticket-card">
                 <div class="ticket-title">{{ticket.title}}</div>
@@ -150,20 +183,12 @@
                         <span class="detail-value">{{ticket.location}}</span>
                     </div>
                     <div class="detail-item">
+                        <span class="detail-label">Estimated Duration</span>
+                        <span class="detail-value">{{data.estimatedDuration || 'To be determined'}}</span>
+                    </div>
+                    <div class="detail-item">
                         <span class="detail-label">Assignment Method</span>
                         <span class="detail-value">{{data.assignmentMethod || 'Manual'}}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Reported Date</span>
-                        <span class="detail-value">{{timestamp}}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Community Address</span>
-                        <span class="detail-value">{{data.communityAddress}}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Community</span>
-                        <span class="detail-value">{{data.communityName}}</span>
                     </div>
                 </div>
                 
@@ -171,61 +196,40 @@
                     <span class="detail-label">Description</span>
                     <span class="detail-value">{{ticket.description}}</span>
                 </div>
-                
-                {{#if ticket.images}}
-                <div class="detail-item" style="margin-top: 15px;">
-                    <span class="detail-label">📸 Ticket Images</span>
-                    <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px;">
-                        {{#each ticket.images}}
-                        <div style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden; width: 150px;">
-                            <a href="{{this}}" target="_blank" style="text-decoration: none;">
-                                <img src="{{this}}" alt="Ticket Image" style="width: 100%; height: 120px; object-fit: cover; display: block;">
-                                <div style="padding: 8px; background: #007bff; color: white; text-align: center; font-size: 12px;">
-                                    🔍 Click to view full size
-                                </div>
-                            </a>
-                        </div>
-                        {{/each}}
-                    </div>
+            </div>
+            
+            <div class="technician-card">
+                <div class="technician-header">
+                    <span class="technician-icon">👨‍🔧</span>
+                    <span class="technician-name">{{data.technicianName}}</span>
                 </div>
-                {{/if}}
-                
+                <p><strong>Expertise:</strong> {{data.technicianExpertise}}</p>
                 {{#if data.assignmentReason}}
-                <div class="detail-item" style="margin-top: 15px; background: #e3f2fd; padding: 15px; border-radius: 8px;">
-                    <span class="detail-label">🤖 Why You Were Selected</span>
-                    <span class="detail-value">{{data.assignmentReason}}</span>
-                </div>
-                {{/if}}
-                
-                {{#if data.estimatedDuration}}
-                <div class="detail-item" style="margin-top: 10px;">
-                    <span class="detail-label">Estimated Duration</span>
-                    <span class="detail-value">{{data.estimatedDuration}}</span>
-                </div>
+                <p><strong>Selected because:</strong> {{data.assignmentReason}}</p>
                 {{/if}}
             </div>
             
-            <!-- Reporter Contact Information -->
-            <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                <h4 style="margin: 0 0 10px 0; color: #856404;">📞 Reporter Contact Information</h4>
-                <p style="margin: 5px 0;"><strong>Name:</strong> {{data.reporterName}}</p>
-                <p style="margin: 5px 0;"><strong>Mobile:</strong> {{data.reporterMobile}}</p>
-                <p style="margin: 5px 0;"><strong>Email:</strong> {{data.reporterEmail}}</p>
+            <div class="timeline">
+                <h4>📅 What Happens Next</h4>
+                <ul>
+                    <li><strong>Now:</strong> Technician has been notified and will review your request</li>
+                    <li><strong>Soon:</strong> Technician may contact you for additional details if needed</li>
+                    <li><strong>During Work:</strong> You'll receive updates as work progresses</li>
+                    <li><strong>Completion:</strong> You'll be notified when the issue is resolved</li>
+                </ul>
             </div>
             
-            <a href="#" class="cta-button">View Ticket Details</a>
-            
-            <p><strong>Next Steps:</strong></p>
-            <ul>
-                <li>Review the ticket details carefully</li>
-                <li>Contact the resident if you need clarification</li>
-                <li>Update the ticket status as you work on it</li>
-                <li>Mark as completed when finished</li>
-            </ul>
+            <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; border: 1px solid #ffeaa7;">
+                <p style="margin: 0; font-size: 14px; color: #856404;">
+                    <strong>Need to add something?</strong> If you remember additional details about this issue, 
+                    please contact the technician or update your ticket through the Bitnap app.
+                </p>
+            </div>
         </div>
         
         <div class="footer">
             <p>This is an automated notification from Bitnap Maintenance System</p>
+            <p>You will receive updates as your ticket progresses</p>
             <p>© 2024 Bitnap. All rights reserved.</p>
         </div>
     </div>

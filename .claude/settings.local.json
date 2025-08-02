@@ -35,7 +35,11 @@
       "Bash(timeout 10s npm run dev)",
       "Bash(npm test:*)",
       "Bash(npm run:*)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "Bash(cat:*)",
+      "Bash(dos2unix:*)",
+      "Bash(npm start)",
+      "Bash(curl:*)"
     ],
     "deny": []
   }

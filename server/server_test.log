@@ -1,0 +1,20 @@
+
+> bitnap-server@1.0.0 start
+> node dist/server.js
+
+Firebase initialized successfully
+Server running on port 3000
+
+=== REQUEST START [2025-08-02T02:57:50.212Z] ===
+POST /api/notifications/test-assignment
+IP: ::ffff:127.0.0.1
+User-Agent: curl/7.81.0
+Request Body: {
+  "ticketId": "ScBZ557KVjy3qgRVxO8f",
+  "technicianId": "TyfYVgv06CEjz3dBUX4B"
+}
+🧪 Testing assignment email for ticket ScBZ557KVjy3qgRVxO8f to technician TyfYVgv06CEjz3dBUX4B
+Response Status: 200
+Response Data: {"success":true,"message":"Test assignment email sent successfully","ticketId":"ScBZ557KVjy3qgRVxO8f","technicianId":"TyfYVgv06CEjz3dBUX4B"}
+=== REQUEST END [2025-08-02T02:57:50.449Z] ===
+

@@ -1,0 +1,1221 @@
+
+> bitnap-server@1.0.0 start
+> node dist/server.js
+
+Firebase initialized successfully
+Server running on port 3000
+
+=== REQUEST START [2025-08-02T03:16:06.564Z] ===
+POST /api/notifications/test-assignment
+IP: ::ffff:127.0.0.1
+User-Agent: curl/7.81.0
+Request Body: {
+  "ticketId": "jRHYpFjQEoEAXFRR8NjD",
+  "technicianId": "TyfYVgv06CEjz3dBUX4B"
+}
+🧪 Testing assignment email for ticket jRHYpFjQEoEAXFRR8NjD to technician TyfYVgv06CEjz3dBUX4B
+🚀 Starting notification process for ticket jRHYpFjQEoEAXFRR8NjD to technician TyfYVgv06CEjz3dBUX4B
+✅ Ticket data loaded: electric wires got out
+✅ Technician data loaded: Roshan Sai Sapram
+📧 Creating notification for technician...
+📊 Using category: electrical (AI: electrical, DB: maintenance)
+📝 Creating notification for user TyfYVgv06CEjz3dBUX4B, type: new_assignment
+✅ Notification document created with ID: Chevhq6IQq1AiZ6itfhs
+📱 Sending push notification...
+No push subscriptions found for user: TyfYVgv06CEjz3dBUX4B
+📧 Sending email notification (priority: high, type: new_assignment)
+📧 Starting email notification process for user: TyfYVgv06CEjz3dBUX4B
+✅ User email found: sapramroshansai@gmail.com
+📧 Ticket data loaded for email: {
+  id: 'jRHYpFjQEoEAXFRR8NjD',
+  title: 'electric wires got out',
+  category: 'maintenance',
+  location: ' room no.1002',
+  priority: 'high',
+  images: 1,
+  hasRequiredTools: true,
+  hasRequiredMaterials: true
+}
+📧 Sending email to sapramroshansai@gmail.com: {
+  template: 'ai-ticket-assignment-simple',
+  subject: '🤖 AI-Recommended Ticket Assigned',
+  hasTicket: true,
+  ticketId: 'jRHYpFjQEoEAXFRR8NjD',
+  dataKeys: [
+    'category',
+    'dbCategory',
+    'location',
+    'assignedBy',
+    'assignmentMethod',
+    'assignmentReason',
+    'assignmentScore',
+    'estimatedDuration',
+    'requiredTools',
+    'requiredMaterials',
+    'difficultyLevel'
+  ]
+}
+🎨 Template rendering started with data keys: [ 'user', 'ticket', 'message', 'title', 'data', 'timestamp' ]
+🎨 Data structure preview: {
+  user: { name: 'Roshan Sai Sapram', email: 'sapramroshansai@gmail.com' },
+  ticket: {
+    id: 'jRHYpFjQEoEAXFRR8NjD',
+    title: 'electric wires got out',
+    category: 'maintenance',
+    imagesCount: 1
+  },
+  dataKeys: [
+    'category',
+    'dbCategory',
+    'location',
+    'assignedBy',
+    'assignmentMethod',
+    'assignmentReason',
+    'assignmentScore',
+    'estimatedDuration',
+    'requiredTools',
+    'requiredMaterials',
+    'difficultyLevel'
+  ]
+}
+🔍 Replacing {{user.name}} with: "Roshan Sai Sapram"
+🔍 Replacing {{ticket.title}} with: "electric wires got out"
+🔍 Replacing {{ticket.id}} with: "jRHYpFjQEoEAXFRR8NjD"
+🔍 Replacing {{data.category}} with: "electrical"
+🔍 Replacing {{ticket.priority}} with: "high"
+🔍 Replacing {{ticket.location}} with: " room no.1002"
+🔍 Replacing {{timestamp}} with: "8/2/2025"
+🔍 Replacing {{ticket.description}} with: "electric wires got out"
+🔍 Replacing {{data.assignmentScore}} with: "95"
+🔍 Replacing {{data.difficultyLevel}} with: "medium"
+🔍 Replacing {{data.estimatedDuration}} with: "2-3 hours"
+🔍 Replacing {{data.category}} with: "electrical"
+✅ Template rendering completed
+Email sent successfully: <ec462b4a-e439-2cda-339f-5db93c17444e@gmail.com>
+Email notification sent to sapramroshansai@gmail.com for new_assignment
+✅ Email notification process completed
+✅ Technician notification created successfully
+📧 Creating notification for ticket reporter...
+📝 Creating notification for user 1kk5yoDikTybm1IwuGG8, type: assignment
+✅ Notification document created with ID: G4dNe1J9UiHpdW23vT9h
+📱 Sending push notification...
+No push subscriptions found for user: 1kk5yoDikTybm1IwuGG8
+📧 Sending email notification (priority: medium, type: assignment)
+📧 Starting email notification process for user: 1kk5yoDikTybm1IwuGG8
+✅ User email found: parvezz2309@gmail.com
+📧 Ticket data loaded for email: {
+  id: 'jRHYpFjQEoEAXFRR8NjD',
+  title: 'electric wires got out',
+  category: 'maintenance',
+  location: ' room no.1002',
+  priority: 'high',
+  images: 1,
+  hasRequiredTools: true,
+  hasRequiredMaterials: true
+}
+📧 Sending email to parvezz2309@gmail.com: {
+  template: 'ticket-assigned-notification',
+  subject: '✅ Your Ticket Has Been Assigned',
+  hasTicket: true,
+  ticketId: 'jRHYpFjQEoEAXFRR8NjD',
+  dataKeys: [
+    'category',
+    'dbCategory',
+    'location',
+    'technicianName',
+    'technicianExpertise',
+    'assignmentMethod',
+    'assignmentReason',
+    'estimatedDuration'
+  ]
+}
+🎨 Template rendering started with data keys: [ 'user', 'ticket', 'message', 'title', 'data', 'timestamp' ]
+🎨 Data structure preview: {
+  user: { name: 'parvez', email: 'parvezz2309@gmail.com' },
+  ticket: {
+    id: 'jRHYpFjQEoEAXFRR8NjD',
+    title: 'electric wires got out',
+    category: 'maintenance',
+    imagesCount: 1
+  },
+  dataKeys: [
+    'category',
+    'dbCategory',
+    'location',
+    'technicianName',
+    'technicianExpertise',
+    'assignmentMethod',
+    'assignmentReason',
+    'estimatedDuration'
+  ]
+}
+🔍 Replacing {{user.name}} with: "parvez"
+🔍 Replacing {{ticket.title}} with: "electric wires got out"
+🔍 Replacing {{ticket.id}} with: "jRHYpFjQEoEAXFRR8NjD"
+🔍 Replacing {{ticket.category}} with: "maintenance"
+🔍 Replacing {{ticket.priority}} with: "high"
+🔍 Replacing {{ticket.priority}} with: "high"
+🔍 Replacing {{ticket.location}} with: " room no.1002"
+🔍 Replacing {{ticket.description}} with: "electric wires got out"
+🔍 Replacing {{data.technicianName}} with: "Roshan Sai Sapram"
+🔍 Replacing {{data.technicianExpertise}} with: "Appliance Repair, Painting"
+🔍 Replacing {{data.assignmentReason}} with: "You have the highest skill match for plumbing issues in your area"
+✅ Template rendering completed
+Email sent successfully: <f9fd3b25-9ec8-3f25-5cf3-cf3973ce015c@gmail.com>
+Email notification sent to parvezz2309@gmail.com for assignment
+✅ Email notification process completed
+✅ Reporter notification created successfully
+Response Status: 200
+Response Data: {"success":true,"message":"Test assignment email sent successfully","ticketId":"jRHYpFjQEoEAXFRR8NjD","technicianId":"TyfYVgv06CEjz3dBUX4B"}
+=== REQUEST END [2025-08-02T03:16:12.376Z] ===
+
+
+=== REQUEST START [2025-08-02T03:16:27.520Z] ===
+GET /api/communities?isActive=true
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { isActive: 'true' }
+Response Status: 200
+Response Data: {"success":true,"communities":[{"id":"PAWJErgeBMJTEDEuHojc","name":"vnr hostel","managerId":"2Fg6qStQxrCfnNkbmvEh","location":"vnr","description":"boys hostel","address":"vnr gate","contactEmail":"jagadeeswar079@gmail.com","contactPhone":"9700550849","isActive":true,"createdAt":{"_seconds":1754093324,"_nanoseconds":748000000},"updatedAt":{"_seconds":1754093324,"_nanoseconds":748000000}}],"total":1}
+=== REQUEST END [2025-08-02T03:16:27.580Z] ===
+
+
+=== REQUEST START [2025-08-02T03:16:27.818Z] ===
+GET /api/tickets?reportedBy=qyOHu27ym5DOB5ZO7NoF
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { reportedBy: 'qyOHu27ym5DOB5ZO7NoF' }
+Response Status: 200
+Response Data: {"success":true,"tickets":[{"id":"C9SkETH8EMpUY6StTY7h","title":"wall","description":"wall","images":["https://storage.googleapis.com/bitnap-prod.firebasestorage.app/ticket-images/1754103298211-v2ev2obrc1m.webp"],"reportedBy":"qyOHu27ym5DOB5ZO7NoF","category":"maintenance","location":"1c1","priority":"auto","communityId":"PAWJErgeBMJTEDEuHojc","createdAt":{"_seconds":1754103313,"_nanoseconds":46000000},"spamMetadata":{"confidence":0.9,"reason":"The ticket title and description are identical and generic ('wall'). The reporter has also created a duplicate ticket with the same title and description within the last 24 hours, indicating a potential spam or reporting error.","detectedAt":{"_seconds":1754103317,"_nanoseconds":462000000}},"status":"spam","updatedAt":{"_seconds":1754103317,"_nanoseconds":462000000}}],"total":1}
+=== REQUEST END [2025-08-02T03:16:27.860Z] ===
+
+
+=== REQUEST START [2025-08-02T03:16:27.862Z] ===
+GET /api/tickets?reportedBy=qyOHu27ym5DOB5ZO7NoF
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { reportedBy: 'qyOHu27ym5DOB5ZO7NoF' }
+
+=== REQUEST START [2025-08-02T03:16:27.869Z] ===
+GET /api/tickets?communityId=PAWJErgeBMJTEDEuHojc
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { communityId: 'PAWJErgeBMJTEDEuHojc' }
+Response Status: 200
+Response Data: {"success":true,"tickets":[{"id":"C9SkETH8EMpUY6StTY7h","title":"wall","description":"wall","images":["https://storage.googleapis.com/bitnap-prod.firebasestorage.app/ticket-images/1754103298211-v2ev2obrc1m.webp"],"reportedBy":"qyOHu27ym5DOB5ZO7NoF","category":"maintenance","location":"1c1","priority":"auto","communityId":"PAWJErgeBMJTEDEuHojc","createdAt":{"_seconds":1754103313,"_nanoseconds":46000000},"spamMetadata":{"confidence":0.9,"reason":"The ticket title and description are identical and generic ('wall'). The reporter has also created a duplicate ticket with the same title and description within the last 24 hours, indicating a potential spam or reporting error.","detectedAt":{"_seconds":1754103317,"_nanoseconds":462000000}},"status":"spam","updatedAt":{"_seconds":1754103317,"_nanoseconds":462000000}}],"total":1}
+=== REQUEST END [2025-08-02T03:16:27.902Z] ===
+
+Response Status: 200
+Response Data: [Large response body]
+=== REQUEST END [2025-08-02T03:16:27.908Z] ===
+
+
+=== REQUEST START [2025-08-02T03:16:27.910Z] ===
+GET /api/tickets?communityId=PAWJErgeBMJTEDEuHojc
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { communityId: 'PAWJErgeBMJTEDEuHojc' }
+
+=== REQUEST START [2025-08-02T03:16:27.914Z] ===
+GET /api/tickets/stats?communityId=PAWJErgeBMJTEDEuHojc
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { communityId: 'PAWJErgeBMJTEDEuHojc' }
+Response Status: 200
+Response Data: [Large response body]
+=== REQUEST END [2025-08-02T03:16:27.964Z] ===
+
+Response Status: 200
+Response Data: {"success":true,"stats":{"open":1,"assigned":0,"in_progress":0,"resolved":0,"closed":0,"total":1}}
+=== REQUEST END [2025-08-02T03:16:27.980Z] ===
+
+
+=== REQUEST START [2025-08-02T03:16:27.982Z] ===
+GET /api/tickets/stats?communityId=PAWJErgeBMJTEDEuHojc
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { communityId: 'PAWJErgeBMJTEDEuHojc' }
+Response Status: 200
+Response Data: {"success":true,"stats":{"open":1,"assigned":0,"in_progress":0,"resolved":0,"closed":0,"total":1}}
+=== REQUEST END [2025-08-02T03:16:28.030Z] ===
+
+
+=== REQUEST START [2025-08-02T03:16:49.309Z] ===
+GET /api/tickets?reportedBy=qyOHu27ym5DOB5ZO7NoF
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { reportedBy: 'qyOHu27ym5DOB5ZO7NoF' }
+Response Status: 200
+Response Data: {"success":true,"tickets":[],"total":0}
+=== REQUEST END [2025-08-02T03:16:49.339Z] ===
+
+
+=== REQUEST START [2025-08-02T03:16:49.341Z] ===
+GET /api/tickets?reportedBy=qyOHu27ym5DOB5ZO7NoF
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { reportedBy: 'qyOHu27ym5DOB5ZO7NoF' }
+
+=== REQUEST START [2025-08-02T03:16:49.347Z] ===
+GET /api/tickets?communityId=PAWJErgeBMJTEDEuHojc
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { communityId: 'PAWJErgeBMJTEDEuHojc' }
+Response Status: 200
+Response Data: {"success":true,"tickets":[],"total":0}
+=== REQUEST END [2025-08-02T03:16:49.373Z] ===
+
+Response Status: 200
+Response Data: [Large response body]
+=== REQUEST END [2025-08-02T03:16:49.383Z] ===
+
+
+=== REQUEST START [2025-08-02T03:16:49.384Z] ===
+GET /api/tickets?communityId=PAWJErgeBMJTEDEuHojc
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { communityId: 'PAWJErgeBMJTEDEuHojc' }
+
+=== REQUEST START [2025-08-02T03:16:49.390Z] ===
+GET /api/tickets/stats?communityId=PAWJErgeBMJTEDEuHojc
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { communityId: 'PAWJErgeBMJTEDEuHojc' }
+Response Status: 200
+Response Data: [Large response body]
+=== REQUEST END [2025-08-02T03:16:49.416Z] ===
+
+Response Status: 200
+Response Data: {"success":true,"stats":{"open":1,"assigned":0,"in_progress":0,"resolved":0,"closed":0,"total":1}}
+=== REQUEST END [2025-08-02T03:16:49.426Z] ===
+
+
+=== REQUEST START [2025-08-02T03:16:49.427Z] ===
+GET /api/tickets/stats?communityId=PAWJErgeBMJTEDEuHojc
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { communityId: 'PAWJErgeBMJTEDEuHojc' }
+Response Status: 200
+Response Data: {"success":true,"stats":{"open":1,"assigned":0,"in_progress":0,"resolved":0,"closed":0,"total":1}}
+=== REQUEST END [2025-08-02T03:16:49.461Z] ===
+
+
+=== REQUEST START [2025-08-02T03:17:15.746Z] ===
+POST /api/upload/multiple
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+🔄 [multi_upload_1754104635788_zenkv9max] === MULTIPLE IMAGES UPLOAD START ===
+[multi_upload_1754104635788_zenkv9max] Timestamp: 2025-08-02T03:17:15.788Z
+[multi_upload_1754104635788_zenkv9max] 📁 Processing 1 files
+[multi_upload_1754104635788_zenkv9max] File 1:
+[multi_upload_1754104635788_zenkv9max]   - Name: Flaking.webp
+[multi_upload_1754104635788_zenkv9max]   - MIME: image/webp
+[multi_upload_1754104635788_zenkv9max]   - Size: 69818 bytes (0.07 MB)
+[multi_upload_1754104635788_zenkv9max] 🔍 Validating all files...
+[multi_upload_1754104635788_zenkv9max] ✅ File 1 validation passed
+[multi_upload_1754104635788_zenkv9max] ✅ All files validated successfully
+[multi_upload_1754104635788_zenkv9max] 🔄 Uploading all files to Firebase Storage...
+📤 [batch_upload_1754104635790_diov6mv2n] === BATCH STORAGE UPLOAD START ===
+[batch_upload_1754104635790_diov6mv2n] Number of files: 1
+[batch_upload_1754104635790_diov6mv2n] Folder: ticket-images
+[batch_upload_1754104635790_diov6mv2n] Queuing upload 1: Flaking.webp
+📤 [upload_1754104635791_d8x9hkche] === STORAGE UPLOAD START ===
+[upload_1754104635791_d8x9hkche] Original Name: Flaking.webp
+[upload_1754104635791_d8x9hkche] MIME Type: image/webp
+[upload_1754104635791_d8x9hkche] Size: 69818 bytes
+[upload_1754104635791_d8x9hkche] Folder: ticket-images
+[upload_1754104635791_d8x9hkche] Generated filename: ticket-images/1754104635792-o5hrhagm46.webp
+[upload_1754104635791_d8x9hkche] Creating write stream...
+[batch_upload_1754104635790_diov6mv2n] 🔄 Starting parallel uploads...
+[upload_1754104635791_d8x9hkche] ✅ File uploaded successfully in 1492ms
+[upload_1754104635791_d8x9hkche] 🔄 Making file publicly accessible...
+[upload_1754104635791_d8x9hkche] 🔗 Public URL: https://storage.googleapis.com/bitnap-prod.firebasestorage.app/ticket-images/1754104635792-o5hrhagm46.webp
+[upload_1754104635791_d8x9hkche] === STORAGE UPLOAD SUCCESS ===
+[batch_upload_1754104635790_diov6mv2n] ✅ All uploads completed in 1848ms
+[batch_upload_1754104635790_diov6mv2n] Successfully uploaded 1/1 files
+[batch_upload_1754104635790_diov6mv2n] === BATCH STORAGE UPLOAD SUCCESS ===
+[multi_upload_1754104635788_zenkv9max] ✅ All files uploaded to Firebase Storage
+[multi_upload_1754104635788_zenkv9max] 📊 Upload results: [
+  {
+    url: 'https://storage.googleapis.com/bitnap-prod.firebasestorage.app/ticket-images/1754104635792-o5hrhagm46.webp',
+    originalName: 'Flaking.webp'
+  }
+]
+[multi_upload_1754104635788_zenkv9max] === MULTIPLE IMAGES UPLOAD SUCCESS ===
+Response Status: 200
+Response Data: {"success":true,"message":"1 images uploaded to storage successfully","data":[{"url":"https://storage.googleapis.com/bitnap-prod.firebasestorage.app/ticket-images/1754104635792-o5hrhagm46.webp","fileName":"ticket-images/1754104635792-o5hrhagm46.webp","originalName":"Flaking.webp","size":69818,"contentType":"image/webp","uploadedAt":"2025-08-02T03:17:17.644Z"}]}
+=== REQUEST END [2025-08-02T03:17:17.646Z] ===
+
+
+=== REQUEST START [2025-08-02T03:17:17.653Z] ===
+POST /api/tickets
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Request Body: {
+  "title": "wall",
+  "description": "wall",
+  "location": "123d",
+  "category": "maintenance",
+  "priority": "auto",
+  "communityId": "PAWJErgeBMJTEDEuHojc",
+  "reportedBy": "qyOHu27ym5DOB5ZO7NoF",
+  "imageUrl": [
+    "https://storage.googleapis.com/bitnap-prod.firebasestorage.app/ticket-images/1754104635792-o5hrhagm46.webp"
+  ]
+}
+🎫 [TICKET_CREATE] Raw input data: {
+  title: 'wall',
+  description: 'wall...',
+  images: 0,
+  imageUrl: 1,
+  imageData: 1,
+  reportedBy: 'qyOHu27ym5DOB5ZO7NoF',
+  category: 'maintenance',
+  location: '123d',
+  communityId: 'PAWJErgeBMJTEDEuHojc'
+}
+🎫 [TICKET_CREATE] ImageUrl details: {
+  isArray: true,
+  length: 1,
+  contents: [
+    {
+      index: 0,
+      value: 'https://storage.googleapis.com/bitnap-prod.firebasestorage.app/ticket-images/1754104635792-o5hrhagm46.webp',
+      type: 'string',
+      isNull: false,
+      isUndefined: false,
+      hasData: false
+    }
+  ]
+}
+🎫 [TICKET_CREATE] Image URL processing: {
+  originalImageData: [
+    'https://storage.googleapis.com/bitnap-prod.firebasestorage.app/ticket-images/1754104635792-o5hrhagm46.webp'
+  ],
+  originalLength: 1,
+  afterFiltering: 1,
+  filteredOut: 0,
+  imageUrls: [
+    {
+      index: 0,
+      url: 'https://storage.googleapis.com/bitnap-prod.firebasestorage.app/ticket-images/1754104635792-o5hrhagm4...',
+      isStorageUrl: true,
+      isValidUrl: true
+    }
+  ]
+}
+💾 [TICKET_CREATE] Final ticket data to save: {
+  title: 'wall',
+  description: 'wall',
+  images: [
+    {
+      index: 0,
+      type: 'string',
+      isDataUrl: false,
+      length: 106,
+      preview: 'https://storage.googleapis.com/bitnap-prod.firebas...'
+    }
+  ],
+  reportedBy: 'qyOHu27ym5DOB5ZO7NoF',
+  category: 'maintenance',
+  location: '123d',
+  priority: 'auto',
+  status: 'open',
+  communityId: 'PAWJErgeBMJTEDEuHojc',
+  createdAt: ServerTimestampTransform {},
+  updatedAt: ServerTimestampTransform {}
+}
+📊 [TICKET_CREATE] Estimated document size: 337 bytes (0.00 MB)
+✅ [TICKET_CREATE] Ticket saved to Firestore with ID: u5scOH6ZJTqndYaXe2Rr
+🔍 [TICKET_CREATE] Verification - saved ticket data: {
+  id: 'u5scOH6ZJTqndYaXe2Rr',
+  title: 'wall',
+  images: 1,
+  imagesData: [
+    {
+      index: 0,
+      type: 'string',
+      isDataUrl: false,
+      length: 106,
+      preview: 'https://storage.googleapis.com/bitnap-prod.firebas...'
+    }
+  ]
+}
+✅ [TICKET_CREATE] Successfully saved 1 image URLs to database
+🔧 Found 2 technicians in community PAWJErgeBMJTEDEuHojc: [
+  {
+    id: '4doIluQprpMKguK3v84I',
+    name: 'tech1',
+    expertise: [ 'Plumbing', 'Electrical' ]
+  },
+  {
+    id: 'TyfYVgv06CEjz3dBUX4B',
+    name: 'Roshan Sai Sapram',
+    expertise: [ 'Appliance Repair', 'Painting' ]
+  }
+]
+
+🤖 [ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916] === TICKET AI PROCESSING START ===
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916] Ticket ID: u5scOH6ZJTqndYaXe2Rr
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916] Community ID: PAWJErgeBMJTEDEuHojc
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916] Has images: true
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916] Images to analyze: 1 base64 images
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916] AI Prompt length: 2825 characters
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916] 📝 AI Prompt Content:
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916] 
+You are an advanced maintenance ticket analysis AI. Analyze the following ticket for:
+1. Category prediction and urgency
+2. Spam detection
+3. Similar ticket detection
+4. Best technician assignment based on skills and location
+
+NEW TICKET:
+Title: wall
+Description: wall
+Category: maintenance
+Location: 123d
+
+SPAM DETECTION CONTEXT:
+- Reporter has created 1 tickets in the last 24 hours
+- Recent tickets from same reporter: "wall" - wall
+
+EXISTING SIMILAR TICKETS:
+
+ID: jRHYpFjQEoEAXFRR8NjD
+Title: electric wires got out
+Description: electric wires got out  
+Category: maintenance
+Location:  room no.1002
+Status: open
+
+
+AVAILABLE TECHNICIANS:
+
+ID: 4doIluQprpMKguK3v84I
+Name: tech1
+Expertise: Plumbing, Electrical
+Current Location: Unknown
+
+
+ID: TyfYVgv06CEjz3dBUX4B
+Name: Roshan Sai Sapram
+Expertise: Appliance Repair, Painting
+Current Location: Unknown
+
+
+ANALYSIS REQUIREMENTS:
+1. Category from: plumbing, electrical, hvac, carpentry, painting, appliance, landscaping, maintenance, security, elevator, fire_safety, pest_control
+2. Urgency: 'low' or 'high' based on safety/impact
+3. Spam detection: Check for duplicate/nonsensical content, excessive reporting
+4. Technician assignment: ONLY use IDs from the AVAILABLE TECHNICIANS list above. If no technicians are available, set recommendedTechnician to null
+5. Required tools and materials estimation
+
+IMPORTANT: You MUST ONLY recommend technicians from the AVAILABLE TECHNICIANS list above. Do NOT invent or hallucinate technician IDs, names, or data that are not explicitly listed.
+
+Respond with ONLY valid JSON:
+{
+  "predictedCategory": "category_name",
+  "predictedUrgency": "low|high",
+  "confidence": 0.95,
+  "isSpam": true|false,
+  "spamConfidence": 0.85,
+  "spamReason": "explanation if spam detected",
+  "similarTickets": ["ticket_id1", "ticket_id2"],
+  "shouldMerge": true|false,
+  "mergeWithTicketId": "ticket_id_or_null",
+  "recommendedTechnician": {
+    "id": "MUST_BE_FROM_AVAILABLE_TECHNICIANS_LIST",
+    "name": "MUST_BE_FROM_AVAILABLE_TECHNICIANS_LIST",
+    "skillMatch": 0.9,
+    "locationMatch": 0.8,
+    "reasoning": "why this technician"
+  },
+  "alternativeTechnicians": [
+    {
+      "id": "MUST_BE_FROM_AVAILABLE_TECHNICIANS_LIST",
+      "skillMatch": 0.7,
+      "locationMatch": 0.6
+    }
+  ],
+  "requiredTools": [
+    {
+      "name": "Adjustable Wrench",
+      "category": "hand_tool",
+      "estimated_cost": "$15-25",
+      "required": true,
+      "alternatives": ["Pipe Wrench", "Channel Lock Pliers"]
+    }
+  ],
+  "requiredMaterials": [
+    {
+      "name": "PVC Pipe",
+      "quantity": "2",
+      "unit": "feet",
+      "estimated_cost": "$8-12",
+      "required": true,
+      "alternatives": ["Copper Pipe", "PEX Pipe"]
+    }
+  ],
+  "estimatedDuration": "2-3 hours",
+  "difficultyLevel": "medium",
+  "reasoning": "Overall analysis explanation"
+}
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916] Calling Gemini AI...
+
+🤖 [ai_1754104637918_n4tvcerb4] === GEMINI AI PROCESSING START ===
+[ai_1754104637918_n4tvcerb4] Timestamp: 2025-08-02T03:17:17.919Z
+[ai_1754104637918_n4tvcerb4] Messages count: 1
+[ai_1754104637918_n4tvcerb4] Has context: false
+[ai_1754104637918_n4tvcerb4] Has direct base64 image: false
+[ai_1754104637918_n4tvcerb4] Image URLs count: 1
+[ai_1754104637918_n4tvcerb4] Base64 images array count: 0
+[ai_1754104637918_n4tvcerb4] Using model: gemini-2.5-flash-lite (hasImages: true)
+[ai_1754104637918_n4tvcerb4] Safety settings configured (4 categories)
+[ai_1754104637918_n4tvcerb4] Prepared 1 message parts
+[ai_1754104637918_n4tvcerb4] Processing 1 image URLs...
+🖼️ [img_batch_1754104637921_2st3j7cag] === BATCH IMAGE PROCESSING START ===
+[img_batch_1754104637921_2st3j7cag] Processing 1 image URLs
+[img_batch_1754104637921_2st3j7cag] Image 1: https://storage.googleapis.com/bitnap-prod.firebasestorage.app/ticket-images/1754104635792-o5hrhagm46.webp
+[img_batch_1754104637921_2st3j7cag] Starting parallel image processing...
+[img_batch_1754104637921_2st3j7cag] Initiating processing for image 1
+🖼️ [img_conv_1754104637922_qnkefmyh2] === IMAGE URL TO BASE64 CONVERSION START ===
+[img_conv_1754104637922_qnkefmyh2] Image URL: https://storage.googleapis.com/bitnap-prod.firebasestorage.app/ticket-images/1754104635792-o5hrhagm46.webp
+[img_conv_1754104637922_qnkefmyh2] Fetching image data...
+[img_conv_1754104637922_qnkefmyh2] ✅ Image fetched in 984ms
+[img_conv_1754104637922_qnkefmyh2] Response status: 200
+[img_conv_1754104637922_qnkefmyh2] Content length: 69818 bytes
+[img_conv_1754104637922_qnkefmyh2] Content type: image/webp
+[img_conv_1754104637922_qnkefmyh2] Converting to base64...
+[img_conv_1754104637922_qnkefmyh2] ✅ Base64 conversion completed in 1ms
+[img_conv_1754104637922_qnkefmyh2] Base64 length: 93092 characters
+[img_conv_1754104637922_qnkefmyh2] MIME type: image/webp
+[img_conv_1754104637922_qnkefmyh2] === IMAGE CONVERSION SUCCESS ===
+[img_batch_1754104637921_2st3j7cag] ✅ All images processed in 988ms
+[img_batch_1754104637921_2st3j7cag] Successfully processed 1/1 images
+[img_batch_1754104637921_2st3j7cag] Result 1: 93092 chars, image/webp
+[img_batch_1754104637921_2st3j7cag] === BATCH IMAGE PROCESSING SUCCESS ===
+[ai_1754104637918_n4tvcerb4] ✅ Image URLs processed in 990ms
+[ai_1754104637918_n4tvcerb4] Adding 1 processed images to AI prompt
+[ai_1754104637918_n4tvcerb4] Image 1: 93092 chars, image/webp
+[ai_1754104637918_n4tvcerb4] Image analysis prompt added
+[ai_1754104637918_n4tvcerb4] Preparing AI request content...
+[ai_1754104637918_n4tvcerb4] Total content parts: 2
+[ai_1754104637918_n4tvcerb4] Sending request to Gemini AI...
+[ai_1754104637918_n4tvcerb4] ✅ AI response received in 2638ms
+[ai_1754104637918_n4tvcerb4] Response length: 2070 characters
+[ai_1754104637918_n4tvcerb4] 🔮 AI Response Content:
+[ai_1754104637918_n4tvcerb4] ```json
+{
+  "predictedCategory": "painting",
+  "predictedUrgency": "low",
+  "confidence": 0.95,
+  "isSpam": false,
+  "spamConfidence": 0.20,
+  "spamReason": null,
+  "similarTickets": [],
+  "shouldMerge": false,
+  "mergeWithTicketId": null,
+  "recommendedTechnician": {
+    "id": "TyfYVgv06CEjz3dBUX4B",
+    "name": "Roshan Sai Sapram",
+    "skillMatch": 0.9,
+    "locationMatch": 0.0,
+    "reasoning": "The ticket is for a wall issue, which aligns with 'Painting' expertise. The technician's location is unknown, preventing a location match."
+  },
+  "alternativeTechnicians": [
+    {
+      "id": "4doIluQprpMKguK3v84I",
+      "skillMatch": 0.1,
+      "locationMatch": 0.0
+    }
+  ],
+  "requiredTools": [
+    {
+      "name": "Paint Scraper",
+      "category": "hand_tool",
+      "estimated_cost": "$10-20",
+      "required": true,
+      "alternatives": ["Putty Knife"]
+    },
+    {
+      "name": "Primer",
+      "category": "material",
+      "estimated_cost": "$20-50",
+      "required": true,
+      "alternatives": ["Sealer"]
+    },
+    {
+      "name": "Interior Paint",
+      "category": "material",
+      "estimated_cost": "$30-80",
+      "required": true,
+      "alternatives": ["Exterior Paint (if applicable)", "Wall Primer"]
+    },
+    {
+      "name": "Paint Brushes",
+      "category": "tool",
+      "estimated_cost": "$10-30",
+      "required": true,
+      "alternatives": ["Paint Rollers"]
+    },
+    {
+      "name": "Sanding Paper",
+      "category": "tool",
+      "estimated_cost": "$5-15",
+      "required": true,
+      "alternatives": ["Sanding Sponge"]
+    }
+  ],
+  "requiredMaterials": [],
+  "estimatedDuration": "4-6 hours",
+  "difficultyLevel": "medium",
+  "reasoning": "The ticket describes a wall issue with peeling paint, indicating a need for painting services. Roshan Sai Sapram is the only technician with relevant expertise (Painting). The reporter's previous ticket about 'wall' could be related, but the current ticket is more specific due to the image provided. The urgency is low as it does not appear to be an immediate safety hazard."
+}
+```
+[ai_1754104637918_n4tvcerb4] === GEMINI AI PROCESSING SUCCESS ===
+
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916] ✅ AI processing completed in 3632ms
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916] 🔮 Raw AI Response (2070 chars):
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916] ```json
+{
+  "predictedCategory": "painting",
+  "predictedUrgency": "low",
+  "confidence": 0.95,
+  "isSpam": false,
+  "spamConfidence": 0.20,
+  "spamReason": null,
+  "similarTickets": [],
+  "shouldMerge": false,
+  "mergeWithTicketId": null,
+  "recommendedTechnician": {
+    "id": "TyfYVgv06CEjz3dBUX4B",
+    "name": "Roshan Sai Sapram",
+    "skillMatch": 0.9,
+    "locationMatch": 0.0,
+    "reasoning": "The ticket is for a wall issue, which aligns with 'Painting' expertise. The technician's location is unknown, preventing a location match."
+  },
+  "alternativeTechnicians": [
+    {
+      "id": "4doIluQprpMKguK3v84I",
+      "skillMatch": 0.1,
+      "locationMatch": 0.0
+    }
+  ],
+  "requiredTools": [
+    {
+      "name": "Paint Scraper",
+      "category": "hand_tool",
+      "estimated_cost": "$10-20",
+      "required": true,
+      "alternatives": ["Putty Knife"]
+    },
+    {
+      "name": "Primer",
+      "category": "material",
+      "estimated_cost": "$20-50",
+      "required": true,
+      "alternatives": ["Sealer"]
+    },
+    {
+      "name": "Interior Paint",
+      "category": "material",
+      "estimated_cost": "$30-80",
+      "required": true,
+      "alternatives": ["Exterior Paint (if applicable)", "Wall Primer"]
+    },
+    {
+      "name": "Paint Brushes",
+      "category": "tool",
+      "estimated_cost": "$10-30",
+      "required": true,
+      "alternatives": ["Paint Rollers"]
+    },
+    {
+      "name": "Sanding Paper",
+      "category": "tool",
+      "estimated_cost": "$5-15",
+      "required": true,
+      "alternatives": ["Sanding Sponge"]
+    }
+  ],
+  "requiredMaterials": [],
+  "estimatedDuration": "4-6 hours",
+  "difficultyLevel": "medium",
+  "reasoning": "The ticket describes a wall issue with peeling paint, indicating a need for painting services. Roshan Sai Sapram is the only technician with relevant expertise (Painting). The reporter's previous ticket about 'wall' could be related, but the current ticket is more specific due to the image provided. The urgency is low as it does not appear to be an immediate safety hazard."
+}
+```
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916] Parsing AI response as JSON...
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916] Cleaned response length: 2058 characters
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916] First 200 chars of cleaned response: {
+  "predictedCategory": "painting",
+  "predictedUrgency": "low",
+  "confidence": 0.95,
+  "isSpam": false,
+  "spamConfidence": 0.20,
+  "spamReason": null,
+  "similarTickets": [],
+  "shouldMerge": fals...
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916] ✅ JSON parsing successful
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916] 📊 Parsed AI Data: {
+  "predictedCategory": "painting",
+  "predictedUrgency": "low",
+  "confidence": 0.95,
+  "isSpam": false,
+  "spamConfidence": 0.2,
+  "spamReason": null,
+  "similarTickets": [],
+  "shouldMerge": false,
+  "mergeWithTicketId": null,
+  "recommendedTechnician": {
+    "id": "TyfYVgv06CEjz3dBUX4B",
+    "name": "Roshan Sai Sapram",
+    "skillMatch": 0.9,
+    "locationMatch": 0,
+    "reasoning": "The ticket is for a wall issue, which aligns with 'Painting' expertise. The technician's location is unknown, preventing a location match."
+  },
+  "alternativeTechnicians": [
+    {
+      "id": "4doIluQprpMKguK3v84I",
+      "skillMatch": 0.1,
+      "locationMatch": 0
+    }
+  ],
+  "requiredTools": [
+    {
+      "name": "Paint Scraper",
+      "category": "hand_tool",
+      "estimated_cost": "$10-20",
+      "required": true,
+      "alternatives": [
+        "Putty Knife"
+      ]
+    },
+    {
+      "name": "Primer",
+      "category": "material",
+      "estimated_cost": "$20-50",
+      "required": true,
+      "alternatives": [
+        "Sealer"
+      ]
+    },
+    {
+      "name": "Interior Paint",
+      "category": "material",
+      "estimated_cost": "$30-80",
+      "required": true,
+      "alternatives": [
+        "Exterior Paint (if applicable)",
+        "Wall Primer"
+      ]
+    },
+    {
+      "name": "Paint Brushes",
+      "category": "tool",
+      "estimated_cost": "$10-30",
+      "required": true,
+      "alternatives": [
+        "Paint Rollers"
+      ]
+    },
+    {
+      "name": "Sanding Paper",
+      "category": "tool",
+      "estimated_cost": "$5-15",
+      "required": true,
+      "alternatives": [
+        "Sanding Sponge"
+      ]
+    }
+  ],
+  "requiredMaterials": [],
+  "estimatedDuration": "4-6 hours",
+  "difficultyLevel": "medium",
+  "reasoning": "The ticket describes a wall issue with peeling paint, indicating a need for painting services. Roshan Sai Sapram is the only technician with relevant expertise (Painting). The reporter's previous ticket about 'wall' could be related, but the current ticket is more specific due to the image provided. The urgency is low as it does not appear to be an immediate safety hazard."
+}
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916] Validating AI technician recommendations...
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916] ✅ Recommended technician validated: Roshan Sai Sapram (TyfYVgv06CEjz3dBUX4B)
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916] ✅ Alternative technician validated: tech1 (4doIluQprpMKguK3v84I)
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916] Building metadata object...
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916] 📋 Final AI Processing Result:
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916]   - Predicted Category: painting
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916]   - Predicted Urgency: low
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916]   - Is Spam: false (confidence: 0.2)
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916]   - Should Merge: false
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916]   - Similar Ticket ID: null
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916]   - Required Tools: [[object Object], [object Object], [object Object], [object Object], [object Object]]
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916]   - Required Materials: []
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916]   - Estimated Duration: 4-6 hours
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916]   - Difficulty Level: medium
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916]   - Reasoning: The ticket describes a wall issue with peeling paint, indicating a need for painting services. Roshan Sai Sapram is the only technician with relevant expertise (Painting). The reporter's previous ticket about 'wall' could be related, but the current ticket is more specific due to the image provided. The urgency is low as it does not appear to be an immediate safety hazard.
+[ai_process_u5scOH6ZJTqndYaXe2Rr_1754104637916] === TICKET AI PROCESSING SUCCESS ===
+
+🏷️ Category: Original="maintenance" → AI Predicted="painting" → Final="painting"
+🤖 Using AI-recommended technician: Roshan Sai Sapram (TyfYVgv06CEjz3dBUX4B)
+📋 Assigning ticket u5scOH6ZJTqndYaXe2Rr to technician Roshan Sai Sapram via ai_recommendation
+📧 Sending assignment notification to Roshan Sai Sapram (TyfYVgv06CEjz3dBUX4B)
+🚀 Starting notification process for ticket u5scOH6ZJTqndYaXe2Rr to technician TyfYVgv06CEjz3dBUX4B
+✅ Ticket data loaded: wall
+✅ Technician data loaded: Roshan Sai Sapram
+📧 Creating notification for technician...
+📊 Using category: painting (AI: painting, DB: painting)
+📝 Creating notification for user TyfYVgv06CEjz3dBUX4B, type: new_assignment
+✅ Notification document created with ID: PDFPOLI4dUqfWJCm6EMp
+📱 Sending push notification...
+No push subscriptions found for user: TyfYVgv06CEjz3dBUX4B
+📧 Sending email notification (priority: medium, type: new_assignment)
+📧 Starting email notification process for user: TyfYVgv06CEjz3dBUX4B
+✅ User email found: sapramroshansai@gmail.com
+📧 Ticket data loaded for email: {
+  id: 'u5scOH6ZJTqndYaXe2Rr',
+  title: 'wall',
+  category: 'painting',
+  location: '123d',
+  priority: 'low',
+  images: 1,
+  hasRequiredTools: true,
+  hasRequiredMaterials: false
+}
+📧 Sending email to sapramroshansai@gmail.com: {
+  template: 'ai-ticket-assignment-simple',
+  subject: '🤖 AI-Recommended Ticket Assigned',
+  hasTicket: true,
+  ticketId: 'u5scOH6ZJTqndYaXe2Rr',
+  dataKeys: [
+    'category',
+    'dbCategory',
+    'location',
+    'assignedBy',
+    'assignmentMethod',
+    'assignmentReason',
+    'assignmentScore',
+    'estimatedDuration',
+    'requiredTools',
+    'requiredMaterials',
+    'difficultyLevel'
+  ]
+}
+🎨 Template rendering started with data keys: [ 'user', 'ticket', 'message', 'title', 'data', 'timestamp' ]
+🎨 Data structure preview: {
+  user: { name: 'Roshan Sai Sapram', email: 'sapramroshansai@gmail.com' },
+  ticket: {
+    id: 'u5scOH6ZJTqndYaXe2Rr',
+    title: 'wall',
+    category: 'painting',
+    imagesCount: 1
+  },
+  dataKeys: [
+    'category',
+    'dbCategory',
+    'location',
+    'assignedBy',
+    'assignmentMethod',
+    'assignmentReason',
+    'assignmentScore',
+    'estimatedDuration',
+    'requiredTools',
+    'requiredMaterials',
+    'difficultyLevel'
+  ]
+}
+🔍 Replacing {{user.name}} with: "Roshan Sai Sapram"
+🔍 Replacing {{ticket.title}} with: "wall"
+🔍 Replacing {{ticket.id}} with: "u5scOH6ZJTqndYaXe2Rr"
+🔍 Replacing {{data.category}} with: "painting"
+🔍 Replacing {{ticket.priority}} with: "low"
+🔍 Replacing {{ticket.location}} with: "123d"
+🔍 Replacing {{timestamp}} with: "8/2/2025"
+🔍 Replacing {{ticket.description}} with: "wall"
+🔍 Replacing {{data.assignmentScore}} with: "90"
+🔍 Replacing {{data.difficultyLevel}} with: "medium"
+🔍 Replacing {{data.estimatedDuration}} with: "4-6 hours"
+🔍 Replacing {{data.category}} with: "painting"
+✅ Template rendering completed
+Email sent successfully: <8d948a9b-4153-0331-3adb-4a497b5192b7@gmail.com>
+Email notification sent to sapramroshansai@gmail.com for new_assignment
+✅ Email notification process completed
+✅ Technician notification created successfully
+📧 Creating notification for ticket reporter...
+📝 Creating notification for user qyOHu27ym5DOB5ZO7NoF, type: assignment
+✅ Notification document created with ID: KAihf6PQ2xQJA33bdGpy
+📱 Sending push notification...
+No push subscriptions found for user: qyOHu27ym5DOB5ZO7NoF
+📧 Sending email notification (priority: medium, type: assignment)
+📧 Starting email notification process for user: qyOHu27ym5DOB5ZO7NoF
+✅ User email found: sparkscj000@gmail.com
+📧 Ticket data loaded for email: {
+  id: 'u5scOH6ZJTqndYaXe2Rr',
+  title: 'wall',
+  category: 'painting',
+  location: '123d',
+  priority: 'low',
+  images: 1,
+  hasRequiredTools: true,
+  hasRequiredMaterials: false
+}
+📧 Sending email to sparkscj000@gmail.com: {
+  template: 'ticket-assigned-notification',
+  subject: '✅ Your Ticket Has Been Assigned',
+  hasTicket: true,
+  ticketId: 'u5scOH6ZJTqndYaXe2Rr',
+  dataKeys: [
+    'category',
+    'dbCategory',
+    'location',
+    'technicianName',
+    'technicianExpertise',
+    'assignmentMethod',
+    'assignmentReason',
+    'estimatedDuration'
+  ]
+}
+🎨 Template rendering started with data keys: [ 'user', 'ticket', 'message', 'title', 'data', 'timestamp' ]
+🎨 Data structure preview: {
+  user: { name: 'user1', email: 'sparkscj000@gmail.com' },
+  ticket: {
+    id: 'u5scOH6ZJTqndYaXe2Rr',
+    title: 'wall',
+    category: 'painting',
+    imagesCount: 1
+  },
+  dataKeys: [
+    'category',
+    'dbCategory',
+    'location',
+    'technicianName',
+    'technicianExpertise',
+    'assignmentMethod',
+    'assignmentReason',
+    'estimatedDuration'
+  ]
+}
+🔍 Replacing {{user.name}} with: "user1"
+🔍 Replacing {{ticket.title}} with: "wall"
+🔍 Replacing {{ticket.id}} with: "u5scOH6ZJTqndYaXe2Rr"
+🔍 Replacing {{ticket.category}} with: "painting"
+🔍 Replacing {{ticket.priority}} with: "low"
+🔍 Replacing {{ticket.priority}} with: "low"
+🔍 Replacing {{ticket.location}} with: "123d"
+🔍 Replacing {{ticket.description}} with: "wall"
+🔍 Replacing {{data.technicianName}} with: "Roshan Sai Sapram"
+🔍 Replacing {{data.technicianExpertise}} with: "Appliance Repair, Painting"
+🔍 Replacing {{data.assignmentReason}} with: "AI recommendation: The ticket is for a wall issue, which aligns with 'Painting' expertise. The technician's location is unknown, preventing a location match."
+✅ Template rendering completed
+Email sent successfully: <9346fab9-286d-4838-cd98-1618683f18de@gmail.com>
+Email notification sent to sparkscj000@gmail.com for assignment
+✅ Email notification process completed
+✅ Reporter notification created successfully
+Response Status: 201
+Response Data: [Large response body]
+=== REQUEST END [2025-08-02T03:17:26.432Z] ===
+
+
+=== REQUEST START [2025-08-02T03:17:26.439Z] ===
+GET /api/tickets?reportedBy=qyOHu27ym5DOB5ZO7NoF
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { reportedBy: 'qyOHu27ym5DOB5ZO7NoF' }
+Response Status: 200
+Response Data: [Large response body]
+=== REQUEST END [2025-08-02T03:17:26.473Z] ===
+
+
+=== REQUEST START [2025-08-02T03:17:26.479Z] ===
+GET /api/tickets?communityId=PAWJErgeBMJTEDEuHojc
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { communityId: 'PAWJErgeBMJTEDEuHojc' }
+Response Status: 200
+Response Data: [Large response body]
+=== REQUEST END [2025-08-02T03:17:26.509Z] ===
+
+
+=== REQUEST START [2025-08-02T03:17:26.525Z] ===
+GET /api/tickets/stats?communityId=PAWJErgeBMJTEDEuHojc
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { communityId: 'PAWJErgeBMJTEDEuHojc' }
+Response Status: 200
+Response Data: {"success":true,"stats":{"open":1,"assigned":1,"in_progress":0,"resolved":0,"closed":0,"total":2}}
+=== REQUEST END [2025-08-02T03:17:26.573Z] ===
+
+
+=== REQUEST START [2025-08-02T03:17:41.324Z] ===
+GET /api/tickets?reportedBy=qyOHu27ym5DOB5ZO7NoF
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { reportedBy: 'qyOHu27ym5DOB5ZO7NoF' }
+Response Status: 200
+Response Data: [Large response body]
+=== REQUEST END [2025-08-02T03:17:41.352Z] ===
+
+
+=== REQUEST START [2025-08-02T03:17:41.354Z] ===
+GET /api/tickets?reportedBy=qyOHu27ym5DOB5ZO7NoF
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { reportedBy: 'qyOHu27ym5DOB5ZO7NoF' }
+
+=== REQUEST START [2025-08-02T03:17:41.360Z] ===
+GET /api/tickets?communityId=PAWJErgeBMJTEDEuHojc
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { communityId: 'PAWJErgeBMJTEDEuHojc' }
+Response Status: 200
+Response Data: [Large response body]
+=== REQUEST END [2025-08-02T03:17:41.385Z] ===
+
+Response Status: 200
+Response Data: [Large response body]
+=== REQUEST END [2025-08-02T03:17:41.388Z] ===
+
+
+=== REQUEST START [2025-08-02T03:17:41.390Z] ===
+GET /api/tickets?communityId=PAWJErgeBMJTEDEuHojc
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { communityId: 'PAWJErgeBMJTEDEuHojc' }
+
+=== REQUEST START [2025-08-02T03:17:41.394Z] ===
+GET /api/tickets/stats?communityId=PAWJErgeBMJTEDEuHojc
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { communityId: 'PAWJErgeBMJTEDEuHojc' }
+Response Status: 200
+Response Data: [Large response body]
+=== REQUEST END [2025-08-02T03:17:41.417Z] ===
+
+Response Status: 200
+Response Data: {"success":true,"stats":{"open":1,"assigned":1,"in_progress":0,"resolved":0,"closed":0,"total":2}}
+=== REQUEST END [2025-08-02T03:17:41.428Z] ===
+
+
+=== REQUEST START [2025-08-02T03:17:41.429Z] ===
+GET /api/tickets/stats?communityId=PAWJErgeBMJTEDEuHojc
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { communityId: 'PAWJErgeBMJTEDEuHojc' }
+Response Status: 200
+Response Data: {"success":true,"stats":{"open":1,"assigned":1,"in_progress":0,"resolved":0,"closed":0,"total":2}}
+=== REQUEST END [2025-08-02T03:17:41.466Z] ===
+
+
+=== REQUEST START [2025-08-02T03:24:48.892Z] ===
+GET /api/tickets?reportedBy=qyOHu27ym5DOB5ZO7NoF
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { reportedBy: 'qyOHu27ym5DOB5ZO7NoF' }
+Response Status: 200
+Response Data: [Large response body]
+=== REQUEST END [2025-08-02T03:24:48.999Z] ===
+
+
+=== REQUEST START [2025-08-02T03:24:49.000Z] ===
+GET /api/tickets?reportedBy=qyOHu27ym5DOB5ZO7NoF
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { reportedBy: 'qyOHu27ym5DOB5ZO7NoF' }
+
+=== REQUEST START [2025-08-02T03:24:49.006Z] ===
+GET /api/tickets?communityId=PAWJErgeBMJTEDEuHojc
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { communityId: 'PAWJErgeBMJTEDEuHojc' }
+Response Status: 200
+Response Data: [Large response body]
+=== REQUEST END [2025-08-02T03:24:49.044Z] ===
+
+
+=== REQUEST START [2025-08-02T03:24:49.050Z] ===
+GET /api/tickets/stats?communityId=PAWJErgeBMJTEDEuHojc
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { communityId: 'PAWJErgeBMJTEDEuHojc' }
+Response Status: 200
+Response Data: [Large response body]
+=== REQUEST END [2025-08-02T03:24:49.060Z] ===
+
+
+=== REQUEST START [2025-08-02T03:24:49.065Z] ===
+GET /api/tickets?communityId=PAWJErgeBMJTEDEuHojc
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { communityId: 'PAWJErgeBMJTEDEuHojc' }
+Response Status: 200
+Response Data: [Large response body]
+=== REQUEST END [2025-08-02T03:24:49.100Z] ===
+
+Response Status: 200
+Response Data: {"success":true,"stats":{"open":1,"assigned":1,"in_progress":0,"resolved":0,"closed":0,"total":2}}
+=== REQUEST END [2025-08-02T03:24:49.110Z] ===
+
+
+=== REQUEST START [2025-08-02T03:24:49.130Z] ===
+GET /api/tickets/stats?communityId=PAWJErgeBMJTEDEuHojc
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { communityId: 'PAWJErgeBMJTEDEuHojc' }
+Response Status: 200
+Response Data: {"success":true,"stats":{"open":1,"assigned":1,"in_progress":0,"resolved":0,"closed":0,"total":2}}
+=== REQUEST END [2025-08-02T03:24:49.183Z] ===
+
+
+=== REQUEST START [2025-08-02T03:24:53.401Z] ===
+GET /api/tickets?reportedBy=qyOHu27ym5DOB5ZO7NoF
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { reportedBy: 'qyOHu27ym5DOB5ZO7NoF' }
+Response Status: 200
+Response Data: [Large response body]
+=== REQUEST END [2025-08-02T03:24:53.432Z] ===
+
+
+=== REQUEST START [2025-08-02T03:24:53.434Z] ===
+GET /api/tickets?reportedBy=qyOHu27ym5DOB5ZO7NoF
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { reportedBy: 'qyOHu27ym5DOB5ZO7NoF' }
+
+=== REQUEST START [2025-08-02T03:24:53.438Z] ===
+GET /api/tickets?communityId=PAWJErgeBMJTEDEuHojc
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { communityId: 'PAWJErgeBMJTEDEuHojc' }
+Response Status: 200
+Response Data: [Large response body]
+=== REQUEST END [2025-08-02T03:24:53.462Z] ===
+
+Response Status: 200
+Response Data: [Large response body]
+=== REQUEST END [2025-08-02T03:24:53.467Z] ===
+
+
+=== REQUEST START [2025-08-02T03:24:53.468Z] ===
+GET /api/tickets?communityId=PAWJErgeBMJTEDEuHojc
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { communityId: 'PAWJErgeBMJTEDEuHojc' }
+
+=== REQUEST START [2025-08-02T03:24:53.472Z] ===
+GET /api/tickets/stats?communityId=PAWJErgeBMJTEDEuHojc
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { communityId: 'PAWJErgeBMJTEDEuHojc' }
+Response Status: 200
+Response Data: [Large response body]
+=== REQUEST END [2025-08-02T03:24:53.498Z] ===
+
+Response Status: 200
+Response Data: {"success":true,"stats":{"open":1,"assigned":1,"in_progress":0,"resolved":0,"closed":0,"total":2}}
+=== REQUEST END [2025-08-02T03:24:53.511Z] ===
+
+
+=== REQUEST START [2025-08-02T03:24:53.512Z] ===
+GET /api/tickets/stats?communityId=PAWJErgeBMJTEDEuHojc
+IP: ::1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0
+Query Params: [Object: null prototype] { communityId: 'PAWJErgeBMJTEDEuHojc' }
+Response Status: 200
+Response Data: {"success":true,"stats":{"open":1,"assigned":1,"in_progress":0,"resolved":0,"closed":0,"total":2}}
+=== REQUEST END [2025-08-02T03:24:53.546Z] ===
+

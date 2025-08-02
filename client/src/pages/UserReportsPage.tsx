@@ -923,19 +923,30 @@ export function UserReportsPage() {
                           {/* Header with Status */}
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
-                              <h3 className="text-lg font-semibold text-card-foreground mb-2">
-                                {ticket.title}
-                              </h3>
-                              <div className="flex items-center gap-3 mb-2">
-                                <Badge className={`${getStatusColor(ticket.status)} border`}>
+                              <div className="flex items-center gap-2 mb-2">
+                                <h3 className="text-lg font-semibold text-card-foreground">
+                                  {ticket.title}
+                                </h3>
+                                <Badge className="bg-gray-100 text-gray-700 border-gray-300 text-xs font-mono">
+                                  #{ticket.id?.slice(-8)}
+                                </Badge>
+                              </div>
+                              <div className="flex flex-wrap items-center gap-2 mb-3">
+                                <Badge className={`${getStatusColor(ticket.status)} border font-medium`}>
                                   {ticket.status.replace('_', ' ')}
                                 </Badge>
-                                <Badge className={`${getPriorityColor(ticket.priority)} border`}>
+                                <Badge className={`${getPriorityColor(ticket.priority)} border font-medium`}>
                                   {ticket.priority} Priority
                                 </Badge>
-                                <span className="text-sm text-muted-foreground">
-                                  #{ticket.id?.slice(-6)}
-                                </span>
+                                <Badge className="bg-purple-100 text-purple-800 border-purple-300 text-xs capitalize">
+                                  {ticket.category.replace('_', ' ')}
+                                </Badge>
+                                {ticket.assignedTo && (
+                                  <Badge className="bg-green-100 text-green-800 border-green-300 text-xs flex items-center gap-1">
+                                    <CheckCircle className="w-3 h-3" />
+                                    Assigned
+                                  </Badge>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -947,27 +958,107 @@ export function UserReportsPage() {
                             </p>
                           </div>
 
+                          {/* Assigned Technician */}
+                          {ticket.assignedTo && (
+                            <div className="bg-green-50 dark:bg-green-950/50 rounded-lg p-4 border border-green-200 dark:border-green-800">
+                              <div className="flex items-start space-x-3">
+                                <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center flex-shrink-0">
+                                  <User className="w-4 h-4 text-green-600 dark:text-green-400" />
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-sm font-semibold text-green-700 dark:text-green-300 mb-1">
+                                    Assigned Technician
+                                  </p>
+                                  <p className="text-sm text-green-800 dark:text-green-200 font-medium">
+                                    {ticket.assignedTechnician?.name || 'Technician Assigned'}
+                                  </p>
+                                  {ticket.assignedTechnician?.expertise && ticket.assignedTechnician.expertise.length > 0 && (
+                                    <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                                      Expertise: {ticket.assignedTechnician.expertise.join(', ')}
+                                    </p>
+                                  )}
+                                  <div className="flex items-center space-x-4 mt-2 text-xs text-green-600 dark:text-green-400">
+                                    <span>ID: #{ticket.assignedTo.slice(-6)}</span>
+                                    <span className="flex items-center">
+                                      <CheckCircle className="w-3 h-3 mr-1" />
+                                      Assigned
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
                           {/* AI Insights */}
                           {ticket.aiMetadata && (
-                            <div className="bg-blue-50 dark:bg-blue-950/50 rounded-lg p-3">
-                              <p className="text-sm text-blue-700 dark:text-blue-300">
-                                <strong>AI Analysis:</strong> Category predicted as {ticket.aiMetadata.predictedCategory}, 
-                                urgency level: {ticket.aiMetadata.predictedUrgency}
-                                {ticket.aiMetadata.confidence && ` (${Math.round(ticket.aiMetadata.confidence * 100)}% confidence)`}
-                              </p>
+                            <div className="bg-blue-50 dark:bg-blue-950/50 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                              <div className="flex items-start space-x-3">
+                                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0">
+                                  <Eye className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2">
+                                    AI Analysis & Recommendations
+                                  </p>
+                                  <div className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
+                                    <div className="flex flex-wrap gap-2">
+                                      <Badge className="bg-blue-100 text-blue-800 border-blue-300 text-xs">
+                                        Category: {ticket.aiMetadata.predictedCategory}
+                                      </Badge>
+                                      <Badge className={`text-xs border ${
+                                        ticket.aiMetadata.predictedUrgency === 'high' 
+                                          ? 'bg-red-100 text-red-800 border-red-300' 
+                                          : 'bg-yellow-100 text-yellow-800 border-yellow-300'
+                                      }`}>
+                                        Urgency: {ticket.aiMetadata.predictedUrgency}
+                                      </Badge>
+                                      {ticket.aiMetadata.confidence && (
+                                        <Badge className="bg-gray-100 text-gray-800 border-gray-300 text-xs">
+                                          {Math.round(ticket.aiMetadata.confidence * 100)}% confidence
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           )}
 
                           {/* Tools & Materials */}
                           {(ticket.requiredTools?.length || ticket.requiredMaterials?.length) && (
-                            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3">
-                              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estimated Requirements:</p>
-                              {ticket.estimatedDuration && (
-                                <p className="text-xs text-gray-600 dark:text-gray-400">Duration: {ticket.estimatedDuration}</p>
-                              )}
-                              {ticket.difficultyLevel && (
-                                <p className="text-xs text-gray-600 dark:text-gray-400">Difficulty: {ticket.difficultyLevel}</p>
-                              )}
+                            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 border border-gray-200 dark:border-gray-800">
+                              <div className="flex items-start space-x-3">
+                                <div className="w-8 h-8 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center flex-shrink-0">
+                                  <FileText className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                    Estimated Requirements
+                                  </p>
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                                    {ticket.estimatedDuration && (
+                                      <div className="bg-white dark:bg-gray-800 rounded-md px-3 py-2 border">
+                                        <span className="font-medium text-gray-600 dark:text-gray-400">Duration:</span>
+                                        <span className="ml-1 text-gray-800 dark:text-gray-200">{ticket.estimatedDuration}</span>
+                                      </div>
+                                    )}
+                                    {ticket.difficultyLevel && (
+                                      <div className="bg-white dark:bg-gray-800 rounded-md px-3 py-2 border">
+                                        <span className="font-medium text-gray-600 dark:text-gray-400">Difficulty:</span>
+                                        <span className="ml-1 text-gray-800 dark:text-gray-200 capitalize">{ticket.difficultyLevel}</span>
+                                      </div>
+                                    )}
+                                    {(ticket.requiredTools?.length || ticket.requiredMaterials?.length) && (
+                                      <div className="bg-white dark:bg-gray-800 rounded-md px-3 py-2 border">
+                                        <span className="font-medium text-gray-600 dark:text-gray-400">Items:</span>
+                                        <span className="ml-1 text-gray-800 dark:text-gray-200">
+                                          {(ticket.requiredTools?.length || 0) + (ticket.requiredMaterials?.length || 0)} required
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           )}
 
@@ -983,11 +1074,13 @@ export function UserReportsPage() {
                               <span className="font-medium">Submitted:</span>
                               <span className="ml-1">{formatDate(ticket.createdAt)}</span>
                             </div>
-                          </div>
-
-                          {/* Category */}
-                          <div className="text-sm text-muted-foreground">
-                            Category: <span className="font-medium capitalize">{ticket.category.replace('_', ' ')}</span>
+                            {ticket.updatedAt && ticket.updatedAt !== ticket.createdAt && (
+                              <div className="flex items-center text-muted-foreground">
+                                <CheckCircle className="w-4 h-4 mr-2 text-primary" />
+                                <span className="font-medium">Updated:</span>
+                                <span className="ml-1">{formatDate(ticket.updatedAt)}</span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -1143,19 +1236,30 @@ export function UserReportsPage() {
                           {/* Header */}
                           <div className="flex items-start justify-between gap-4">
                             <div className="flex-1">
-                              <h3 className="text-xl font-semibold text-card-foreground mb-2 leading-tight">
-                                {ticket.title}
-                              </h3>
-                              <div className="flex flex-wrap items-center gap-2 mb-3">
-                                <Badge className={`${getPriorityColor(ticket.priority)} border text-xs font-medium`}>
-                                  {ticket.priority} Priority
+                              <div className="flex items-center gap-2 mb-2">
+                                <h3 className="text-xl font-semibold text-card-foreground leading-tight">
+                                  {ticket.title}
+                                </h3>
+                                <Badge className="bg-gray-100 text-gray-700 border-gray-300 text-xs font-mono">
+                                  #{ticket.id?.slice(-8)}
                                 </Badge>
-                                <Badge className={`${getStatusColor(ticket.status)} border text-xs font-medium`}>
+                              </div>
+                              <div className="flex flex-wrap items-center gap-2 mb-3">
+                                <Badge className={`${getStatusColor(ticket.status)} border font-medium`}>
                                   {ticket.status.replace('_', ' ')}
                                 </Badge>
-                                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded capitalize">
+                                <Badge className={`${getPriorityColor(ticket.priority)} border font-medium`}>
+                                  {ticket.priority} Priority
+                                </Badge>
+                                <Badge className="bg-purple-100 text-purple-800 border-purple-300 text-xs capitalize">
                                   {ticket.category.replace('_', ' ')}
-                                </span>
+                                </Badge>
+                                {ticket.assignedTo && (
+                                  <Badge className="bg-green-100 text-green-800 border-green-300 text-xs flex items-center gap-1">
+                                    <CheckCircle className="w-3 h-3" />
+                                    Assigned
+                                  </Badge>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -1164,6 +1268,110 @@ export function UserReportsPage() {
                           <p className="text-muted-foreground leading-relaxed">
                             {ticket.description}
                           </p>
+
+                          {/* Assigned Technician */}
+                          {ticket.assignedTo && (
+                            <div className="bg-green-50 dark:bg-green-950/50 rounded-lg p-4 border border-green-200 dark:border-green-800">
+                              <div className="flex items-start space-x-3">
+                                <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center flex-shrink-0">
+                                  <User className="w-4 h-4 text-green-600 dark:text-green-400" />
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-sm font-semibold text-green-700 dark:text-green-300 mb-1">
+                                    Assigned Technician
+                                  </p>
+                                  <p className="text-sm text-green-800 dark:text-green-200 font-medium">
+                                    {ticket.assignedTechnician?.name || 'Technician Assigned'}
+                                  </p>
+                                  {ticket.assignedTechnician?.expertise && ticket.assignedTechnician.expertise.length > 0 && (
+                                    <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                                      Expertise: {ticket.assignedTechnician.expertise.join(', ')}
+                                    </p>
+                                  )}
+                                  <div className="flex items-center space-x-4 mt-2 text-xs text-green-600 dark:text-green-400">
+                                    <span>ID: #{ticket.assignedTo.slice(-6)}</span>
+                                    <span className="flex items-center">
+                                      <CheckCircle className="w-3 h-3 mr-1" />
+                                      Assigned
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* AI Insights */}
+                          {ticket.aiMetadata && (
+                            <div className="bg-blue-50 dark:bg-blue-950/50 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                              <div className="flex items-start space-x-3">
+                                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0">
+                                  <Eye className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2">
+                                    AI Analysis & Recommendations
+                                  </p>
+                                  <div className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
+                                    <div className="flex flex-wrap gap-2">
+                                      <Badge className="bg-blue-100 text-blue-800 border-blue-300 text-xs">
+                                        Category: {ticket.aiMetadata.predictedCategory}
+                                      </Badge>
+                                      <Badge className={`text-xs border ${
+                                        ticket.aiMetadata.predictedUrgency === 'high' 
+                                          ? 'bg-red-100 text-red-800 border-red-300' 
+                                          : 'bg-yellow-100 text-yellow-800 border-yellow-300'
+                                      }`}>
+                                        Urgency: {ticket.aiMetadata.predictedUrgency}
+                                      </Badge>
+                                      {ticket.aiMetadata.confidence && (
+                                        <Badge className="bg-gray-100 text-gray-800 border-gray-300 text-xs">
+                                          {Math.round(ticket.aiMetadata.confidence * 100)}% confidence
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Tools & Materials */}
+                          {(ticket.requiredTools?.length || ticket.requiredMaterials?.length) && (
+                            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 border border-gray-200 dark:border-gray-800">
+                              <div className="flex items-start space-x-3">
+                                <div className="w-8 h-8 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center flex-shrink-0">
+                                  <FileText className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                    Estimated Requirements
+                                  </p>
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                                    {ticket.estimatedDuration && (
+                                      <div className="bg-white dark:bg-gray-800 rounded-md px-3 py-2 border">
+                                        <span className="font-medium text-gray-600 dark:text-gray-400">Duration:</span>
+                                        <span className="ml-1 text-gray-800 dark:text-gray-200">{ticket.estimatedDuration}</span>
+                                      </div>
+                                    )}
+                                    {ticket.difficultyLevel && (
+                                      <div className="bg-white dark:bg-gray-800 rounded-md px-3 py-2 border">
+                                        <span className="font-medium text-gray-600 dark:text-gray-400">Difficulty:</span>
+                                        <span className="ml-1 text-gray-800 dark:text-gray-200 capitalize">{ticket.difficultyLevel}</span>
+                                      </div>
+                                    )}
+                                    {(ticket.requiredTools?.length || ticket.requiredMaterials?.length) && (
+                                      <div className="bg-white dark:bg-gray-800 rounded-md px-3 py-2 border">
+                                        <span className="font-medium text-gray-600 dark:text-gray-400">Items:</span>
+                                        <span className="ml-1 text-gray-800 dark:text-gray-200">
+                                          {(ticket.requiredTools?.length || 0) + (ticket.requiredMaterials?.length || 0)} required
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
 
                           {/* Location and Metadata */}
                           <div className="flex flex-col sm:flex-row gap-4 text-sm">
@@ -1177,6 +1385,13 @@ export function UserReportsPage() {
                               <span className="font-medium">Reported:</span>
                               <span className="ml-1">{formatDate(ticket.createdAt)}</span>
                             </div>
+                            {ticket.updatedAt && ticket.updatedAt !== ticket.createdAt && (
+                              <div className="flex items-center text-muted-foreground">
+                                <CheckCircle className="w-4 h-4 mr-2 text-primary" />
+                                <span className="font-medium">Updated:</span>
+                                <span className="ml-1">{formatDate(ticket.updatedAt)}</span>
+                              </div>
+                            )}
                           </div>
 
                           {/* Reporter Info */}

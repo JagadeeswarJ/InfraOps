@@ -6,7 +6,8 @@ import {
     subscribeToNotifications,
     unsubscribeFromNotifications,
     createNotification,
-    updateNotificationBadge
+    updateNotificationBadge,
+    notifyTicketAssigned
 } from "../utils/notification.util.js";
 
 const getUserNotifications = async (req: Request, res: Response): Promise<any> => {
@@ -252,6 +253,42 @@ const testNotification = async (req: Request, res: Response): Promise<any> => {
     }
 };
 
+const testAssignmentEmail = async (req: Request, res: Response): Promise<any> => {
+    try {
+        const { ticketId, technicianId } = req.body;
+
+        if (!ticketId || !technicianId) {
+            return res.status(400).json({
+                error: "ticketId and technicianId are required"
+            });
+        }
+
+        console.log(`🧪 Testing assignment email for ticket ${ticketId} to technician ${technicianId}`);
+
+        // Call the notification function with test data
+        await notifyTicketAssigned(ticketId, technicianId, 'test-system', {
+            method: 'AI Recommendation',
+            reason: 'You have the highest skill match for plumbing issues in your area',
+            score: 95,
+            estimatedDuration: '2-3 hours'
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Test assignment email sent successfully",
+            ticketId,
+            technicianId
+        });
+
+    } catch (error) {
+        console.error("Test assignment email error:", error);
+        return res.status(500).json({
+            error: "Internal server error while sending test assignment email",
+            details: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+};
+
 export {
     getUserNotifications,
     getNotificationStats,
@@ -259,5 +296,6 @@ export {
     markAllNotificationsRead,
     subscribeToPush,
     unsubscribeFromPush,
-    testNotification
+    testNotification,
+    testAssignmentEmail
 };

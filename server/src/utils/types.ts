@@ -87,6 +87,8 @@ export interface Ticket {
         unmarkedAt?: FirebaseFirestore.Timestamp;
         unmarkedBy?: string;
     };
+    difficultyLevel?: string; // AI-generated difficulty assessment
+    estimatedDuration?: string; // AI-generated time estimate
 }
 export interface Notification {
     userId: string;

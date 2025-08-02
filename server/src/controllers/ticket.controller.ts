@@ -186,6 +186,18 @@ const createTicket = async (req: Request, res: Response): Promise<any> => {
             try {
                 // Process with AI for metadata, spam detection, and similar ticket detection
                 const aiResult = await processTicketWithAI(ticketData, ticketId, communityId);
+                
+                // If no technician recommended by AI, get assignment recommendation using the dedicated AI function
+                const aiMetadata = aiResult.metadata as any;
+                if (!aiMetadata.recommendedTechnician) {
+                    console.log(`🎯 No AI technician recommendation, calling assignment recommendation AI...`);
+                    const assignmentRecommendation = await getAIAssignmentRecommendation(ticketId);
+                    if (assignmentRecommendation && assignmentRecommendation.recommendedTechnician) {
+                        aiMetadata.recommendedTechnician = assignmentRecommendation.recommendedTechnician;
+                        aiMetadata.alternativeTechnicians = assignmentRecommendation.alternativeOptions || [];
+                        console.log(`✅ Assignment AI recommended: ${assignmentRecommendation.recommendedTechnician.name} (${assignmentRecommendation.recommendedTechnician.id})`);
+                    }
+                }
 
             // Handle spam detection
             if (aiResult.isSpam) {
@@ -223,8 +235,13 @@ const createTicket = async (req: Request, res: Response): Promise<any> => {
                 // Update ticket with AI metadata
                 const finalPriority = aiResult.metadata.predictedUrgency === 'high' ? 'high' :
                     aiResult.metadata.predictedUrgency === 'low' ? 'low' : priority;
+                
+                // Use AI predicted category if available and different from original
+                const finalCategory = aiResult.metadata.predictedCategory || category;
+                console.log(`🏷️ Category: Original="${category}" → AI Predicted="${aiResult.metadata.predictedCategory}" → Final="${finalCategory}"`);
 
                 await ticketRef.update({
+                    category: finalCategory, // Update category with AI prediction
                     aiMetadata: aiResult.metadata,
                     priority: finalPriority,
                     requiredTools: aiResult.requiredTools,
@@ -237,6 +254,7 @@ const createTicket = async (req: Request, res: Response): Promise<any> => {
                 // Get updated ticket data for auto-assignment
                 const updatedTicketData: Ticket = {
                     ...ticketData,
+                    category: finalCategory, // Use AI-corrected category for assignment
                     priority: finalPriority,
                     aiMetadata: {
                         ...aiResult.metadata,
@@ -295,7 +313,12 @@ const createTicket = async (req: Request, res: Response): Promise<any> => {
 
                             // Send email notification to assigned technician
                             console.log(`📧 Sending assignment notification to ${selectedTechnician.name} (${selectedTechnician.id})`);
-                            await notifyTicketAssigned(ticketId, selectedTechnician.id, 'system');
+                            await notifyTicketAssigned(ticketId, selectedTechnician.id, 'system', {
+                                method: selectedTechnician.method === 'ai_recommendation' ? 'AI Recommendation' : 'Algorithm Assignment',
+                                reason: selectedTechnician.reason,
+                                score: selectedTechnician.score,
+                                estimatedDuration: aiResult.estimatedDuration
+                            });
 
                             assignmentResult = {
                                 assigned: true,
@@ -388,10 +411,9 @@ const processTicketWithAI = async (ticketData: Ticket, ticketId: string, communi
         .where('createdAt', '>=', new Date(Date.now() - 24 * 60 * 60 * 1000)) // Last 24 hours
         .get();
 
-    // Get available technicians for location-based assignment
+    // Get available technicians (not limited by community for better assignment flexibility)
     const techniciansQuery = await db.collection('users')
         .where('role', '==', 'technician')
-        .where('communityId', '==', communityId)
         .get();
 
     const technicians = techniciansQuery.docs.map(doc => {
@@ -1253,10 +1275,9 @@ const findBestTechnician = async (ticket: Ticket): Promise<TechnicianScore | nul
 
 const findAvailableTechnicians = async (ticket: Ticket): Promise<TechnicianScore[]> => {
     try {
-        // Get all technicians in the same community
+        // Get all technicians (not limited by community for better assignment flexibility)
         const techniciansQuery = await db.collection('users')
             .where('role', '==', 'technician')
-            .where('communityId', '==', ticket.communityId)
             .get();
 
         const technicians = techniciansQuery.docs.map(doc => {
@@ -1351,6 +1372,132 @@ const getRelatedSkills = (category: string): string[] => {
     };
 
     return skillRelations[category] || [];
+};
+
+// Helper function to get AI assignment recommendation (calls the AI assignment logic directly)
+const getAIAssignmentRecommendation = async (ticketId: string): Promise<any> => {
+    try {
+        console.log(`🤖 Getting AI assignment recommendation for ticket ${ticketId}`);
+        
+        // Get ticket details
+        const ticketDoc = await db.collection('tickets').doc(ticketId).get();
+        if (!ticketDoc.exists) {
+            console.error(`Ticket ${ticketId} not found for assignment recommendation`);
+            return null;
+        }
+
+        const ticketData = ticketDoc.data();
+
+        // Get available technicians with their current workload
+        const availableTechnicians = await findAvailableTechnicians({
+            id: ticketId,
+            ...ticketData
+        } as any);
+
+        if (availableTechnicians.length === 0) {
+            console.warn(`No available technicians found for assignment recommendation`);
+            return null;
+        }
+
+        console.log(`📋 Found ${availableTechnicians.length} available technicians for AI assignment`);
+
+        const prompt = `
+As an expert assignment manager, analyze this maintenance ticket and recommend the best technician assignment.
+
+TICKET DETAILS:
+Title: ${ticketData?.title}
+Description: ${ticketData?.description}
+Category: ${ticketData?.category}
+Priority: ${ticketData?.priority}
+Location: ${ticketData?.location}
+
+AVAILABLE TECHNICIANS:
+${availableTechnicians.map((tech: any, index: number) => `
+${index + 1}. ${tech.name}
+   - ID: ${tech.id}
+   - Expertise: ${tech.expertise?.join(', ') || 'General maintenance'}
+   - Current Workload: ${tech.workload || 0} active tickets
+   - Score: ${tech.score || 0}
+   - Available: ${tech.available ? 'Yes' : 'No'}
+`).join('\n')}
+
+Consider:
+1. Skill match with ticket category
+2. Current workload distribution
+3. Priority level of the ticket
+4. Past performance (if available)
+5. Location proximity (if relevant)
+
+IMPORTANT: You MUST only recommend technician IDs from the AVAILABLE TECHNICIANS list above.
+
+Respond with ONLY valid JSON:
+{
+  "recommendedTechnician": {
+    "id": "technician_id_from_list_above",
+    "name": "technician_name_from_list_above",
+    "confidence": 0.95,
+    "reasoning": "detailed explanation"
+  },
+  "alternativeOptions": [
+    {
+      "id": "alt_technician_id_from_list_above",
+      "name": "alt_name_from_list_above",
+      "reasoning": "why this could work"
+    }
+  ],
+  "riskFactors": ["potential", "concerns"],
+  "estimatedCompletionTime": "time estimate",
+  "recommendedPriority": "high|medium|low"
+}`;
+
+        console.log(`🤖 Calling Gemini for assignment recommendation...`);
+        const response = await callGemini({
+            messages: [
+                {
+                    role: "user",
+                    parts: [{ text: prompt }]
+                }
+            ]
+        });
+
+        let recommendation: any;
+        try {
+            // Clean the AI response - remove markdown code blocks if present
+            let cleanResponse = response.trim();
+            if (cleanResponse.startsWith('```json')) {
+                cleanResponse = cleanResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+            } else if (cleanResponse.startsWith('```')) {
+                cleanResponse = cleanResponse.replace(/^```\s*/, '').replace(/\s*```$/, '');
+            }
+            
+            recommendation = JSON.parse(cleanResponse);
+            console.log(`✅ Assignment recommendation parsed successfully:`, recommendation);
+            
+            // Validate that recommended technician exists in available list
+            if (recommendation.recommendedTechnician && recommendation.recommendedTechnician.id) {
+                const techExists = availableTechnicians.find(t => t.id === recommendation.recommendedTechnician.id);
+                if (!techExists) {
+                    console.warn(`⚠️ AI recommended invalid technician ID: ${recommendation.recommendedTechnician.id}`);
+                    return null;
+                }
+                
+                // Ensure name matches database
+                recommendation.recommendedTechnician.name = techExists.name;
+                recommendation.recommendedTechnician.skillMatch = techExists.score / 100; // Convert to 0-1 scale
+            }
+            
+            return recommendation;
+            
+        } catch (parseError) {
+            console.error(`❌ Failed to parse assignment recommendation:`, parseError);
+            console.error(`Raw response:`, response);
+            return null;
+        }
+
+    } catch (error) {
+        console.error("Assignment recommendation error:", error);
+        return null;
+    }
 };
 
 const getAssignmentReason = (ticket: Ticket, technician: any, workload: number, score: number): string => {

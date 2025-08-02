@@ -27,6 +27,8 @@ const notificationSubscriptions = new Map<string, any[]>();
 
 export const createNotification = async (payload: NotificationPayload): Promise<string> => {
     try {
+        console.log(`📝 Creating notification for user ${payload.userId}, type: ${payload.type}`);
+        
         const notification: Notification = {
             userId: payload.userId,
             type: payload.type,
@@ -37,8 +39,10 @@ export const createNotification = async (payload: NotificationPayload): Promise<
         };
 
         const notificationRef = await db.collection('notifications').add(notification);
+        console.log(`✅ Notification document created with ID: ${notificationRef.id}`);
         
         // Send push notification
+        console.log(`📱 Sending push notification...`);
         await sendPushNotification(payload.userId, {
             title: payload.title,
             body: payload.message,
@@ -52,13 +56,17 @@ export const createNotification = async (payload: NotificationPayload): Promise<
         });
 
         // Send email notification for high priority or specific types
-        if (payload.priority === 'high' || ['new_assignment', 'overdue_alert'].includes(payload.type)) {
+        if (payload.priority === 'high' || ['new_assignment', 'assignment', 'overdue_alert'].includes(payload.type)) {
+            console.log(`📧 Sending email notification (priority: ${payload.priority}, type: ${payload.type})`);
             await sendEmailNotification(payload);
+            console.log(`✅ Email notification process completed`);
+        } else {
+            console.log(`⏭️ Skipping email notification (priority: ${payload.priority}, type: ${payload.type})`);
         }
 
         return notificationRef.id;
     } catch (error) {
-        console.error('Error creating notification:', error);
+        console.error('❌ Error creating notification:', error);
         throw error;
     }
 };
@@ -89,18 +97,22 @@ export const sendPushNotification = async (userId: string, payload: PushNotifica
 
 export const sendEmailNotification = async (payload: NotificationPayload): Promise<void> => {
     try {
+        console.log(`📧 Starting email notification process for user: ${payload.userId}`);
+        
         // Get user email
         const userDoc = await db.collection('users').doc(payload.userId).get();
         if (!userDoc.exists) {
-            console.log(`User not found: ${payload.userId}`);
+            console.log(`❌ User not found: ${payload.userId}`);
             return;
         }
 
         const userData = userDoc.data() as User;
         if (!userData.email) {
-            console.log(`No email found for user: ${payload.userId}`);
+            console.log(`❌ No email found for user: ${payload.userId}`);
             return;
         }
+        
+        console.log(`✅ User email found: ${userData.email}`);
 
         // Get ticket data if available
         let ticketData = null;
@@ -108,28 +120,84 @@ export const sendEmailNotification = async (payload: NotificationPayload): Promi
             const ticketDoc = await db.collection('tickets').doc(payload.ticketId).get();
             if (ticketDoc.exists) {
                 ticketData = { id: payload.ticketId, ...ticketDoc.data() } as Ticket & { id: string };
+                console.log(`📧 Ticket data loaded for email:`, {
+                    id: ticketData.id,
+                    title: ticketData.title,
+                    category: ticketData.category,
+                    location: ticketData.location,
+                    priority: ticketData.priority,
+                    images: ticketData.images?.length || 0,
+                    hasRequiredTools: !!(ticketData.requiredTools?.length),
+                    hasRequiredMaterials: !!(ticketData.requiredMaterials?.length)
+                });
+            } else {
+                console.warn(`⚠️ Ticket ${payload.ticketId} not found for email notification`);
             }
         }
 
-        // Generate email content based on notification type
-        const emailContent = await generateEmailContent(payload.type, userData, ticketData, payload);
+        // Get the proper template name from email content generation
+        const templateConfig = getTemplateConfigForType(payload.type, payload.data);
+        
+        // Prepare comprehensive template data
+        const templateData = {
+            user: userData,
+            ticket: ticketData,
+            message: payload.message,
+            title: payload.title,
+            data: payload.data, // Include all the payload data for template
+            timestamp: new Date().toLocaleDateString()
+        };
 
+        console.log(`📧 Sending email to ${userData.email}:`, {
+            template: templateConfig.template,
+            subject: templateConfig.subject,
+            hasTicket: !!ticketData,
+            ticketId: ticketData?.id,
+            dataKeys: Object.keys(payload.data || {})
+        });
+        
         await sendEmail(
             userData.email,
-            emailContent.subject,
-            'generic-notification',
-            {
-                user: userData,
-                ticket: ticketData,
-                message: payload.message,
-                title: payload.title
-            }
+            `${templateConfig.subject}: ${ticketData?.title || 'Maintenance Request'}`,
+            templateConfig.template,
+            templateData
         );
 
         console.log(`Email notification sent to ${userData.email} for ${payload.type}`);
     } catch (error) {
         console.error('Error sending email notification:', error);
     }
+};
+
+// Helper function to get template configuration
+const getTemplateConfigForType = (type: string, data?: any) => {
+    const templates = {
+        'new_assignment': {
+            subject: `${data?.assignmentMethod === 'AI Recommendation' ? '🤖 AI-Recommended' : 'New'} Ticket Assigned`,
+            template: data?.assignmentMethod === 'AI Recommendation' ? 'ai-ticket-assignment-simple' : 'ticket-assignment'
+        },
+        'assignment': {
+            subject: `✅ Your Ticket Has Been Assigned`,
+            template: 'ticket-assigned-notification'
+        },
+        'ticket_status': {
+            subject: `Ticket Status Update`,
+            template: 'ticket-status-update'
+        },
+        'overdue_alert': {
+            subject: `⚠️ Overdue Alert`,
+            template: 'overdue-alert'
+        },
+        'feedback_request': {
+            subject: `Feedback Request`,
+            template: 'feedback-request'
+        }
+    };
+
+    return templates[type as keyof typeof templates] || {
+        subject: 'Bitnap Notification',
+        template: 'generic-notification'
+    };
 };
 
 export const generateEmailContent = async (
@@ -140,8 +208,12 @@ export const generateEmailContent = async (
 ): Promise<{ subject: string; html: string }> => {
     const templates = {
         'new_assignment': {
-            subject: `New Ticket Assigned: ${ticket?.title || 'Maintenance Request'}`,
-            template: 'ticket-assignment.html'
+            subject: `${payload.data?.assignmentMethod === 'AI Recommendation' ? '🤖 AI-Recommended' : 'New'} Ticket Assigned: ${ticket?.title || 'Maintenance Request'}`,
+            template: payload.data?.assignmentMethod === 'AI Recommendation' ? 'ai-ticket-assignment.html' : 'ticket-assignment.html'
+        },
+        'assignment': {
+            subject: `✅ Your Ticket Has Been Assigned: ${ticket?.title || 'Maintenance Request'}`,
+            template: 'ticket-assigned-notification.html'
         },
         'ticket_status': {
             subject: `Ticket Status Update: ${ticket?.title || 'Maintenance Request'}`,
@@ -266,25 +338,123 @@ export const unsubscribeFromNotifications = (userId: string, endpoint: string): 
 };
 
 // Notification trigger functions for different ticket events
-export const notifyTicketAssigned = async (ticketId: string, technicianId: string, assignedBy?: string): Promise<void> => {
-    const ticketDoc = await db.collection('tickets').doc(ticketId).get();
-    if (!ticketDoc.exists) return;
-
-    const ticketData = ticketDoc.data() as Ticket;
-
-    await createNotification({
-        userId: technicianId,
-        type: 'new_assignment',
-        ticketId,
-        title: 'New Ticket Assigned',
-        message: `You have been assigned a new ${ticketData.category} ticket: ${ticketData.title}`,
-        priority: ticketData.priority === 'high' ? 'high' : 'medium',
-        data: {
-            category: ticketData.category,
-            location: ticketData.location,
-            assignedBy
+export const notifyTicketAssigned = async (
+    ticketId: string, 
+    technicianId: string, 
+    assignedBy?: string,
+    assignmentData?: {
+        method?: string;
+        reason?: string;
+        score?: number;
+        estimatedDuration?: string;
+    }
+): Promise<void> => {
+    try {
+        console.log(`🚀 Starting notification process for ticket ${ticketId} to technician ${technicianId}`);
+        
+        const ticketDoc = await db.collection('tickets').doc(ticketId).get();
+        if (!ticketDoc.exists) {
+            console.log(`❌ Ticket ${ticketId} not found`);
+            return;
         }
-    });
+
+        const ticketData = ticketDoc.data() as Ticket;
+        console.log(`✅ Ticket data loaded: ${ticketData.title}`);
+        
+        // Get technician details for email
+        const technicianDoc = await db.collection('users').doc(technicianId).get();
+        const technicianData = technicianDoc.exists ? technicianDoc.data() : null;
+        console.log(`✅ Technician data loaded: ${technicianData?.name || 'Unknown'}`);
+
+        // Get community details for address information
+        let communityData = null;
+        if (ticketData.communityId) {
+            const communityDoc = await db.collection('communities').doc(ticketData.communityId).get();
+            if (communityDoc.exists) {
+                communityData = communityDoc.data();
+                console.log(`✅ Community data loaded: ${communityData?.name} at ${communityData?.address}`);
+            } else {
+                console.log(`⚠️ Community ${ticketData.communityId} not found`);
+            }
+        }
+
+        // Get reporter details for mobile number
+        let reporterData = null;
+        if (ticketData.reportedBy) {
+            const reporterDoc = await db.collection('users').doc(ticketData.reportedBy).get();
+            if (reporterDoc.exists) {
+                reporterData = reporterDoc.data();
+                console.log(`✅ Reporter data loaded: ${reporterData?.name} - ${reporterData?.mobile || 'No mobile'}`);
+            } else {
+                console.log(`⚠️ Reporter ${ticketData.reportedBy} not found`);
+            }
+        }
+
+        // Send notification to technician
+        console.log(`📧 Creating notification for technician...`);
+        
+        // Use AI-predicted category if available, fallback to database category
+        const categoryToUse = ticketData.aiMetadata?.predictedCategory || ticketData.category;
+        console.log(`📊 Using category: ${categoryToUse} (AI: ${ticketData.aiMetadata?.predictedCategory}, DB: ${ticketData.category})`);
+        
+        await createNotification({
+            userId: technicianId,
+            type: 'new_assignment',
+            ticketId,
+            title: 'New Ticket Assigned',
+            message: `You have been assigned a new ${categoryToUse} ticket: ${ticketData.title}`,
+            priority: ticketData.priority === 'high' ? 'high' : 'medium',
+            data: {
+                category: categoryToUse, // Use AI-predicted category
+                dbCategory: ticketData.category, // Keep original for reference
+                location: ticketData.location,
+                assignedBy,
+                assignmentMethod: assignmentData?.method || 'Manual',
+                assignmentReason: assignmentData?.reason,
+                assignmentScore: assignmentData?.score,
+                estimatedDuration: assignmentData?.estimatedDuration,
+                // Include all AI-generated data from ticket
+                requiredTools: ticketData.requiredTools || [],
+                requiredMaterials: ticketData.requiredMaterials || [],
+                difficultyLevel: ticketData.difficultyLevel,
+                // Community address information
+                communityName: communityData?.name || 'Unknown Community',
+                communityAddress: communityData?.address || 'Address not available',
+                // Reporter contact information
+                reporterName: reporterData?.name || 'Unknown Reporter',
+                reporterMobile: reporterData?.mobile || 'Mobile not available',
+                reporterEmail: reporterData?.email || 'Email not available',
+            }
+        });
+        console.log(`✅ Technician notification created successfully`);
+
+        // Also notify the ticket reporter that their ticket has been assigned
+        if (ticketData.reportedBy && ticketData.reportedBy !== technicianId) {
+            console.log(`📧 Creating notification for ticket reporter...`);
+            await createNotification({
+                userId: ticketData.reportedBy,
+                type: 'assignment',
+                ticketId,
+                title: 'Your Ticket Has Been Assigned',
+                message: `Your ${categoryToUse} ticket "${ticketData.title}" has been assigned to a technician`,
+                priority: 'medium',
+                data: {
+                    category: categoryToUse, // Use AI-predicted category
+                    dbCategory: ticketData.category, // Keep original for reference
+                    location: ticketData.location,
+                    technicianName: technicianData?.name || 'Technician',
+                    technicianExpertise: (technicianData?.expertise || []).join(', ') || 'General maintenance',
+                    assignmentMethod: assignmentData?.method || 'Manual',
+                    assignmentReason: assignmentData?.reason,
+                    estimatedDuration: assignmentData?.estimatedDuration,
+                }
+            });
+            console.log(`✅ Reporter notification created successfully`);
+        }
+    } catch (error) {
+        console.error(`❌ Error in notifyTicketAssigned for ticket ${ticketId}:`, error);
+        throw error;
+    }
 };
 
 export const notifyTicketStatusChanged = async (
