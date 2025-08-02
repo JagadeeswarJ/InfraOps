@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import multer from 'multer';
+import { StorageUtil } from '../utils/storage.util.js';
 
 const storage = multer.memoryStorage();
 
@@ -50,11 +51,6 @@ const validateImageFile = (
   return { isValid: true };
 };
 
-const convertToBase64 = (buffer: Buffer, mimeType: string): string => {
-  const base64 = buffer.toString('base64');
-  return `data:${mimeType};base64,${base64}`;
-};
-
 export const uploadSingleImage = async (req: Request, res: Response): Promise<any> => {
   const uploadId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
@@ -86,25 +82,29 @@ export const uploadSingleImage = async (req: Request, res: Response): Promise<an
     }
     console.log(`[${uploadId}] ✅ File validation passed`);
 
-    console.log(`[${uploadId}] 🔄 Converting to base64...`);
-    const base64Data = convertToBase64(req.file.buffer, req.file.mimetype);
-    
-    const result = {
-      base64: base64Data,
-      originalName: req.file.originalname,
-      size: req.file.size,
-      contentType: req.file.mimetype,
-      uploadedAt: new Date().toISOString()
-    };
+    console.log(`[${uploadId}] 🔄 Uploading to Firebase Storage...`);
+    const storageResult = await StorageUtil.uploadFile(
+      req.file.buffer,
+      req.file.originalname,
+      req.file.mimetype,
+      'ticket-images'
+    );
 
-    console.log(`[${uploadId}] ✅ Base64 conversion completed`);
-    console.log(`[${uploadId}] 📊 Result size: ${base64Data.length} characters`);
+    console.log(`[${uploadId}] ✅ Firebase Storage upload completed`);
+    console.log(`[${uploadId}] 📊 Public URL: ${storageResult.publicUrl}`);
     console.log(`[${uploadId}] === SINGLE IMAGE UPLOAD SUCCESS ===`);
 
     return res.status(200).json({
       success: true,
-      message: 'Image processed successfully',
-      data: result
+      message: 'Image uploaded to storage successfully',
+      data: {
+        url: storageResult.publicUrl,
+        fileName: storageResult.fileName,
+        originalName: storageResult.originalName,
+        size: storageResult.size,
+        contentType: storageResult.contentType,
+        uploadedAt: storageResult.uploadedAt
+      }
     });
 
   } catch (error) {
@@ -114,7 +114,7 @@ export const uploadSingleImage = async (req: Request, res: Response): Promise<an
     console.error(`[${uploadId}] === UPLOAD ERROR END ===`);
     return res.status(500).json({
       success: false,
-      error: 'Failed to process image'
+      error: 'Failed to upload image to storage'
     });
   }
 };
@@ -168,27 +168,35 @@ export const uploadMultipleImages = async (req: Request, res: Response): Promise
     }
 
     console.log(`[${uploadId}] ✅ All files validated successfully`);
-    console.log(`[${uploadId}] 🔄 Converting all files to base64...`);
+    console.log(`[${uploadId}] 🔄 Uploading all files to Firebase Storage...`);
     
-    const results = files.map((file, index) => {
-      console.log(`[${uploadId}] Converting file ${index + 1}: ${file.originalname}`);
-      const base64Data = convertToBase64(file.buffer, file.mimetype);
-      
-      return {
-        base64: base64Data,
-        originalName: file.originalname,
-        size: file.size,
-        contentType: file.mimetype,
-        uploadedAt: new Date().toISOString()
-      };
-    });
+    // Prepare files for batch upload
+    const filesToUpload = files.map(file => ({
+      buffer: file.buffer,
+      originalName: file.originalname,
+      mimeType: file.mimetype
+    }));
 
-    console.log(`[${uploadId}] ✅ All files converted to base64`);
+    // Upload all files to Firebase Storage
+    const storageResults = await StorageUtil.uploadFiles(filesToUpload, 'ticket-images');
+
+    // Format response data
+    const results = storageResults.map((result, index) => ({
+      url: result.publicUrl,
+      fileName: result.fileName,
+      originalName: result.originalName,
+      size: result.size,
+      contentType: result.contentType,
+      uploadedAt: result.uploadedAt
+    }));
+
+    console.log(`[${uploadId}] ✅ All files uploaded to Firebase Storage`);
+    console.log(`[${uploadId}] 📊 Upload results:`, results.map(r => ({ url: r.url, originalName: r.originalName })));
     console.log(`[${uploadId}] === MULTIPLE IMAGES UPLOAD SUCCESS ===`);
 
     return res.status(200).json({
       success: true,
-      message: `${results.length} images processed successfully`,
+      message: `${results.length} images uploaded to storage successfully`,
       data: results
     });
 
@@ -199,7 +207,7 @@ export const uploadMultipleImages = async (req: Request, res: Response): Promise
     console.error(`[${uploadId}] === UPLOAD ERROR END ===`);
     return res.status(500).json({
       success: false,
-      error: 'Failed to process images'
+      error: 'Failed to upload images to storage'
     });
   }
 };
@@ -253,28 +261,35 @@ export const uploadTicketImages = async (req: Request, res: Response): Promise<a
     }
 
     console.log(`[${uploadId}] ✅ All images validated successfully`);
-    console.log(`[${uploadId}] 🔄 Converting ticket images to base64...`);
+    console.log(`[${uploadId}] 🔄 Uploading ticket images to Firebase Storage...`);
     
-    const results = files.map((file, index) => {
-      console.log(`[${uploadId}] Converting ticket image ${index + 1}: ${file.originalname}`);
-      const base64Data = convertToBase64(file.buffer, file.mimetype);
-      
-      return {
-        base64: base64Data,
-        originalName: file.originalname,
-        size: file.size,
-        contentType: file.mimetype,
-        ticketId: ticketId,
-        uploadedAt: new Date().toISOString()
-      };
-    });
+    // Prepare files for batch upload
+    const filesToUpload = files.map(file => ({
+      buffer: file.buffer,
+      originalName: file.originalname,
+      mimeType: file.mimetype
+    }));
 
-    console.log(`[${uploadId}] ✅ Ticket images converted to base64`);
+    // Upload all files to Firebase Storage with ticket-specific folder
+    const storageResults = await StorageUtil.uploadFiles(filesToUpload, `ticket-images/${ticketId}`);
+
+    // Format response data
+    const results = storageResults.map((result, index) => ({
+      url: result.publicUrl,
+      fileName: result.fileName,
+      originalName: result.originalName,
+      size: result.size,
+      contentType: result.contentType,
+      ticketId: ticketId,
+      uploadedAt: result.uploadedAt
+    }));
+
+    console.log(`[${uploadId}] ✅ Ticket images uploaded to Firebase Storage`);
     console.log(`[${uploadId}] === TICKET IMAGES UPLOAD SUCCESS ===`);
 
     return res.status(200).json({
       success: true,
-      message: `${results.length} images processed for ticket ${ticketId}`,
+      message: `${results.length} images uploaded to storage for ticket ${ticketId}`,
       ticketId,
       images: results
     });

@@ -246,7 +246,7 @@ Respond with ONLY valid JSON:
 
 const findSimilarTickets = async (req: Request, res: Response): Promise<any> => {
     try {
-        const { title, description, communityId } = req.body;
+        const { title, description, communityId, excludeTicketId } = req.body;
 
         if (!title || !description || !communityId) {
             return res.status(400).json({
@@ -258,19 +258,22 @@ const findSimilarTickets = async (req: Request, res: Response): Promise<any> => 
         const recentTicketsQuery = await db.collection('tickets')
             .where('communityId', '==', communityId)
             .orderBy('createdAt', 'desc')
-            .limit(20)
+            .limit(25)
             .get();
 
-        const recentTickets = recentTicketsQuery.docs.map(doc => {
-            const data = doc.data();
-            return {
-                id: doc.id,
-                title: data.title,
-                description: data.description,
-                category: data.category,
-                status: data.status
-            };
-        });
+        const recentTickets = recentTicketsQuery.docs
+            .map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    title: data.title,
+                    description: data.description,
+                    category: data.category,
+                    status: data.status
+                };
+            })
+            .filter(ticket => !excludeTicketId || ticket.id !== excludeTicketId) // Exclude specific ticket if provided
+            .slice(0, 20);
 
         const prompt = `
 Find similar tickets to this new one:

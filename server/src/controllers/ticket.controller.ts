@@ -24,6 +24,7 @@ const createTicket = async (req: Request, res: Response): Promise<any> => {
         } = req.body;
 
         // Handle both new 'images' field and legacy 'imageUrl' field
+        // Expected format: array of image URLs from Firebase Storage
         const imageData = images || imageUrl || [];
 
         console.log(`🎫 [TICKET_CREATE] Raw input data:`, {
@@ -55,7 +56,7 @@ const createTicket = async (req: Request, res: Response): Promise<any> => {
         }
 
         if (images && images.length > 0) {
-            console.log(`🖼️ [TICKET_CREATE] Images data:`, images.map((img, idx) => ({
+            console.log(`🖼️ [TICKET_CREATE] Images data:`, images.map((img: any, idx: number) => ({
                 index: idx,
                 type: typeof img,
                 isDataUrl: img?.startsWith ? img.startsWith('data:') : false,
@@ -87,49 +88,31 @@ const createTicket = async (req: Request, res: Response): Promise<any> => {
             });
         }
 
-        // Process images for storage - handle large images separately
+        // Process image URLs for storage
         // Filter out null, undefined, empty strings, and non-string values
+        // Images should now be URLs from Firebase Storage
         const processedImages = Array.isArray(imageData) 
             ? imageData.filter(img => img !== null && img !== undefined && typeof img === 'string' && img.trim().length > 0)
             : (imageData && typeof imageData === 'string' && imageData.trim().length > 0 ? [imageData] : []);
         
-        console.log(`🎫 [TICKET_CREATE] Image filtering:`, {
+        console.log(`🎫 [TICKET_CREATE] Image URL processing:`, {
             originalImageData: imageData,
             originalLength: Array.isArray(imageData) ? imageData.length : (imageData ? 1 : 0),
             afterFiltering: processedImages.length,
-            filteredOut: Array.isArray(imageData) ? imageData.length - processedImages.length : 0
-        });
-        
-        console.log(`🎫 [TICKET_CREATE] Processed images:`, {
-            originalImageData: imageData,
-            processedImages: processedImages.map((img, idx) => ({
+            filteredOut: Array.isArray(imageData) ? imageData.length - processedImages.length : 0,
+            imageUrls: processedImages.map((url, idx) => ({
                 index: idx,
-                type: typeof img,
-                isDataUrl: img?.startsWith ? img.startsWith('data:') : false,
-                length: img?.length || 0,
-                preview: img?.substring ? img.substring(0, 50) + '...' : 'not string'
+                url: url.substring(0, 100) + '...',
+                isStorageUrl: url.includes('storage.googleapis.com'),
+                isValidUrl: url.startsWith('http')
             }))
         });
-
-        // Check if images are too large for direct storage (conservatively use 800KB limit for images)
-        const maxImageSizeForDirectStorage = 800000; // 800KB, leaving room for other fields
-        const largeImages: string[] = [];
-        const smallImages: string[] = [];
         
-        processedImages.forEach((img) => {
-            if (typeof img === 'string' && img.length > maxImageSizeForDirectStorage) {
-                largeImages.push(img);
-                console.log(`📦 [TICKET_CREATE] Image ${largeImages.length} is large (${img.length} bytes), will store separately`);
-            } else {
-                smallImages.push(img);
-            }
-        });
-
-        // Create initial ticket data with only small images directly stored
+        // Create ticket data with Firebase Storage URLs
         const ticketData: Ticket = {
             title,
             description,
-            images: smallImages, // Only store small images directly in the document
+            images: processedImages, // Store Firebase Storage URLs directly
             reportedBy,
             category,
             location,
@@ -139,16 +122,6 @@ const createTicket = async (req: Request, res: Response): Promise<any> => {
             createdAt: FieldValue.serverTimestamp() as any,
             updatedAt: FieldValue.serverTimestamp() as any
         };
-        
-        // Add metadata about large images
-        if (largeImages.length > 0) {
-            (ticketData as any).imageMetadata = {
-                totalImages: processedImages.length,
-                smallImagesCount: smallImages.length,
-                largeImagesCount: largeImages.length,
-                hasLargeImages: true
-            };
-        }
 
         console.log(`💾 [TICKET_CREATE] Final ticket data to save:`, {
             ...ticketData,
@@ -170,8 +143,8 @@ const createTicket = async (req: Request, res: Response): Promise<any> => {
         }
 
         // Save ticket to get ID first
-        let ticketRef;
-        let ticketId;
+        let ticketRef: any;
+        let ticketId: string;
         
         try {
             ticketRef = await db.collection('tickets').add(ticketData);
@@ -196,44 +169,10 @@ const createTicket = async (req: Request, res: Response): Promise<any> => {
                 })) || 'no images'
             });
             
-            if (smallImages.length === 0 && processedImages.length > 0) {
-                console.error(`❌ [TICKET_CREATE] CRITICAL: Small images were not saved to database! Expected ${smallImages.length} small images.`);
-            }
-            
-            // Store large images in subcollection
-            if (largeImages.length > 0) {
-                console.log(`📦 [TICKET_CREATE] Storing ${largeImages.length} large images in subcollection...`);
-                try {
-                    const imagePromises = largeImages.map(async (imageData, index) => {
-                        const imageDoc = {
-                            imageData,
-                            index: smallImages.length + index, // Continue numbering after small images
-                            uploadedAt: FieldValue.serverTimestamp(),
-                            size: imageData.length
-                        };
-                        
-                        const imageRef = await db.collection('tickets')
-                            .doc(ticketId)
-                            .collection('images')
-                            .add(imageDoc);
-                        
-                        console.log(`✅ [TICKET_CREATE] Large image ${index + 1} stored with ID: ${imageRef.id}`);
-                        return imageRef.id;
-                    });
-                    
-                    const imageIds = await Promise.all(imagePromises);
-                    console.log(`✅ [TICKET_CREATE] All ${largeImages.length} large images stored successfully`);
-                    
-                    // Update ticket with references to large images
-                    await ticketRef.update({
-                        largeImageIds: imageIds,
-                        updatedAt: FieldValue.serverTimestamp()
-                    });
-                    
-                } catch (imageStoreError) {
-                    console.error(`❌ [TICKET_CREATE] Failed to store large images in subcollection:`, imageStoreError);
-                    // Don't fail the ticket creation, just log the error
-                }
+            if (processedImages.length === 0 && (images || imageUrl)) {
+                console.error(`❌ [TICKET_CREATE] CRITICAL: Images were not saved to database! Expected ${processedImages.length} image URLs.`);
+            } else if (processedImages.length > 0) {
+                console.log(`✅ [TICKET_CREATE] Successfully saved ${processedImages.length} image URLs to database`);
             }
             
         } catch (firestoreError) {
@@ -306,45 +245,81 @@ const createTicket = async (req: Request, res: Response): Promise<any> => {
                 };
 
                 let assignmentResult = null;
+                let selectedTechnician = null;
 
-                // Auto-assign if requested
-                if (autoAssign) {
+                // Always try to assign technician when AI has a recommendation or autoAssign is requested
+                const recommendedTech = (aiResult.metadata as any).recommendedTechnician;
+                if (autoAssign || recommendedTech) {
                     try {
-                        const bestTechnician = await findBestTechnician(updatedTicketData);
-                        if (bestTechnician) {
+                        // First, try to use AI's validated recommendation (it's already validated in processTicketWithAI)
+                        if (recommendedTech && recommendedTech.id) {
+                            selectedTechnician = {
+                                id: recommendedTech.id,
+                                name: recommendedTech.name,
+                                expertise: [], // Will be populated from database query below
+                                score: recommendedTech.skillMatch * 100 || 90,
+                                reason: `AI recommendation: ${recommendedTech.reasoning || 'Best skill match for category'}`,
+                                method: 'ai_recommendation'
+                            };
+                            console.log(`🤖 Using AI-recommended technician: ${selectedTechnician.name} (${selectedTechnician.id})`);
+                        }
+
+                        // Fallback to findBestTechnician if no AI recommendation or if autoAssign is requested
+                        if (!selectedTechnician) {
+                            const bestTechnician = await findBestTechnician(updatedTicketData);
+                            if (bestTechnician) {
+                                selectedTechnician = {
+                                    ...bestTechnician,
+                                    method: 'algorithm_assignment'
+                                };
+                                console.log(`🎯 Using algorithm-selected technician: ${selectedTechnician.name} (${selectedTechnician.id})`);
+                            }
+                        }
+
+                        // Assign the selected technician
+                        if (selectedTechnician) {
+                            console.log(`📋 Assigning ticket ${ticketId} to technician ${selectedTechnician.name} via ${selectedTechnician.method}`);
+                            
                             await ticketRef.update({
-                                assignedTo: bestTechnician.id,
+                                assignedTo: selectedTechnician.id,
                                 status: 'assigned',
                                 assignmentMetadata: {
                                     autoAssigned: true,
                                     assignedAt: FieldValue.serverTimestamp(),
-                                    assignmentScore: bestTechnician.score,
-                                    assignmentReason: bestTechnician.reason
+                                    assignmentScore: selectedTechnician.score,
+                                    assignmentReason: selectedTechnician.reason,
+                                    assignmentMethod: selectedTechnician.method
                                 },
                                 updatedAt: FieldValue.serverTimestamp()
                             });
 
+                            // Send email notification to assigned technician
+                            console.log(`📧 Sending assignment notification to ${selectedTechnician.name} (${selectedTechnician.id})`);
+                            await notifyTicketAssigned(ticketId, selectedTechnician.id, 'system');
+
                             assignmentResult = {
                                 assigned: true,
                                 technician: {
-                                    id: bestTechnician.id,
-                                    name: bestTechnician.name,
-                                    expertise: bestTechnician.expertise,
-                                    score: bestTechnician.score,
-                                    reason: bestTechnician.reason
+                                    id: selectedTechnician.id,
+                                    name: selectedTechnician.name,
+                                    expertise: selectedTechnician.expertise,
+                                    score: selectedTechnician.score,
+                                    reason: selectedTechnician.reason,
+                                    method: selectedTechnician.method
                                 }
                             };
                         } else {
                             assignmentResult = {
                                 assigned: false,
-                                reason: "No available technicians found"
+                                reason: "No available technicians found in community"
                             };
+                            console.warn(`⚠️ No technicians available for assignment in community ${communityId}`);
                         }
                     } catch (assignError) {
-                        console.error("Auto-assignment failed:", assignError);
+                        console.error("Technician assignment failed:", assignError);
                         assignmentResult = {
                             assigned: false,
-                            reason: "Auto-assignment failed"
+                            reason: "Assignment failed due to error"
                         };
                     }
                 }
@@ -389,11 +364,11 @@ const createTicket = async (req: Request, res: Response): Promise<any> => {
 };
 
 const processTicketWithAI = async (ticketData: Ticket, ticketId: string, communityId: string) => {
-    // Get similar tickets from the same community
+    // Get similar tickets from the same community (excluding the current ticket)
     const similarTicketsQuery = await db.collection('tickets')
         .where('communityId', '==', communityId)
         .where('status', 'in', ['open', 'assigned', 'in_progress'])
-        .limit(10)
+        .limit(15) // Get more to account for filtering out current ticket
         .get();
 
     const similarTickets = similarTicketsQuery.docs
@@ -404,6 +379,7 @@ const processTicketWithAI = async (ticketData: Ticket, ticketId: string, communi
                 ...data
             };
         })
+        .filter(ticket => ticket.id !== ticketId) // CRITICAL FIX: Exclude current ticket
         .slice(0, 10);
 
     // Get recent tickets from same reporter for spam detection
@@ -427,6 +403,13 @@ const processTicketWithAI = async (ticketData: Ticket, ticketId: string, communi
             currentLocation: data.currentLocation || null
         };
     });
+
+    console.log(`🔧 Found ${technicians.length} technicians in community ${communityId}:`, 
+        technicians.map(tech => ({ id: tech.id, name: tech.name, expertise: tech.expertise })));
+
+    if (technicians.length === 0) {
+        console.warn(`⚠️ No technicians found in community ${communityId} - AI will not be able to recommend assignment`);
+    }
 
     // Prepare comprehensive AI prompt
     const aiPrompt = `
@@ -460,20 +443,21 @@ Status: ${ticket.status}
 `).join('\n')}
 
 AVAILABLE TECHNICIANS:
-${technicians.map(tech => `
+${technicians.length > 0 ? technicians.map(tech => `
 ID: ${tech.id}
 Name: ${tech.name}
 Expertise: ${tech.expertise.join(', ')}
 Current Location: ${tech.currentLocation || 'Unknown'}
-`).join('\n')}
+`).join('\n') : 'No technicians available in this community'}
 
 ANALYSIS REQUIREMENTS:
 1. Category from: plumbing, electrical, hvac, carpentry, painting, appliance, landscaping, maintenance, security, elevator, fire_safety, pest_control
 2. Urgency: 'low' or 'high' based on safety/impact
 3. Spam detection: Check for duplicate/nonsensical content, excessive reporting
-4. Location proximity matching for technician assignment
-5. Skill matching for technician assignment
-6. Required tools and materials estimation
+4. Technician assignment: ONLY use IDs from the AVAILABLE TECHNICIANS list above. If no technicians are available, set recommendedTechnician to null
+5. Required tools and materials estimation
+
+IMPORTANT: You MUST ONLY recommend technicians from the AVAILABLE TECHNICIANS list above. Do NOT invent or hallucinate technician IDs, names, or data that are not explicitly listed.
 
 Respond with ONLY valid JSON:
 {
@@ -486,19 +470,19 @@ Respond with ONLY valid JSON:
   "similarTickets": ["ticket_id1", "ticket_id2"],
   "shouldMerge": true|false,
   "mergeWithTicketId": "ticket_id_or_null",
-  "recommendedTechnician": {
-    "id": "technician_id",
-    "name": "technician_name",
+  "recommendedTechnician": ${technicians.length > 0 ? `{
+    "id": "MUST_BE_FROM_AVAILABLE_TECHNICIANS_LIST",
+    "name": "MUST_BE_FROM_AVAILABLE_TECHNICIANS_LIST",
     "skillMatch": 0.9,
     "locationMatch": 0.8,
     "reasoning": "why this technician"
-  },
-  "alternativeTechnicians": [
+  }` : 'null'},
+  "alternativeTechnicians": [${technicians.length > 0 ? `
     {
-      "id": "alt_tech_id",
+      "id": "MUST_BE_FROM_AVAILABLE_TECHNICIANS_LIST",
       "skillMatch": 0.7,
       "locationMatch": 0.6
-    }
+    }` : ''}
   ],
   "requiredTools": [
     {
@@ -549,7 +533,7 @@ Respond with ONLY valid JSON:
                     parts: [{ text: aiPrompt }]
                 }
             ],
-            imageBase64Array: ticketData.images && ticketData.images.length > 0 ? ticketData.images : undefined
+            imageUrls: ticketData.images && ticketData.images.length > 0 ? ticketData.images : undefined
         });
 
         const aiDuration = Date.now() - aiStartTime;
@@ -580,6 +564,51 @@ Respond with ONLY valid JSON:
             throw new Error(`Failed to parse AI response as JSON: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
         }
 
+        console.log(`[${processId}] Validating AI technician recommendations...`);
+        
+        // Validate and filter technician recommendations
+        let validatedRecommendedTechnician = null;
+        let validatedAlternativeTechnicians: any[] = [];
+        
+        // Check recommended technician
+        if (aiData.recommendedTechnician && aiData.recommendedTechnician.id) {
+            const techExists = technicians.find(tech => tech.id === aiData.recommendedTechnician.id);
+            if (techExists) {
+                validatedRecommendedTechnician = {
+                    ...aiData.recommendedTechnician,
+                    // Ensure the name matches the database
+                    name: techExists.name
+                };
+                console.log(`[${processId}] ✅ Recommended technician validated: ${techExists.name} (${techExists.id})`);
+            } else {
+                console.warn(`[${processId}] ⚠️ AI recommended invalid technician ID: ${aiData.recommendedTechnician.id} - setting to null`);
+                console.warn(`[${processId}] Available technician IDs: [${technicians.map(t => t.id).join(', ')}]`);
+            }
+        }
+        
+        // Check alternative technicians
+        if (aiData.alternativeTechnicians && Array.isArray(aiData.alternativeTechnicians)) {
+            validatedAlternativeTechnicians = aiData.alternativeTechnicians
+                .filter((altTech: any) => {
+                    if (!altTech.id) return false;
+                    const techExists = technicians.find(tech => tech.id === altTech.id);
+                    if (techExists) {
+                        console.log(`[${processId}] ✅ Alternative technician validated: ${techExists.name} (${techExists.id})`);
+                        return true;
+                    } else {
+                        console.warn(`[${processId}] ⚠️ AI recommended invalid alternative technician ID: ${altTech.id} - filtering out`);
+                        return false;
+                    }
+                })
+                .map((altTech: any) => {
+                    const techExists = technicians.find(tech => tech.id === altTech.id);
+                    return {
+                        ...altTech,
+                        name: techExists?.name // Ensure name matches database
+                    };
+                });
+        }
+
         console.log(`[${processId}] Building metadata object...`);
         const metadata = {
             predictedCategory: aiData.predictedCategory,
@@ -587,8 +616,8 @@ Respond with ONLY valid JSON:
             similarPastTickets: aiData.similarTickets || [],
             processedAt: FieldValue.serverTimestamp() as any,
             confidence: aiData.confidence,
-            recommendedTechnician: aiData.recommendedTechnician,
-            alternativeTechnicians: aiData.alternativeTechnicians || []
+            recommendedTechnician: validatedRecommendedTechnician,
+            alternativeTechnicians: validatedAlternativeTechnicians
         };
 
         const result = {
@@ -724,58 +753,23 @@ const getTicket = async (req: Request, res: Response): Promise<any> => {
 
         const ticketData = ticketDoc.data();
         
-        // Get large images from subcollection if they exist
-        let allImages = ticketData?.images || [];
-        
-        if (ticketData?.largeImageIds && ticketData.largeImageIds.length > 0) {
-            console.log(`📦 [GET_TICKET] Retrieving ${ticketData.largeImageIds.length} large images from subcollection...`);
-            try {
-                const largeImagesQuery = await db.collection('tickets')
-                    .doc(id)
-                    .collection('images')
-                    .get();
-                
-                const largeImagesData = largeImagesQuery.docs
-                    .map(doc => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }))
-                    .sort((a: any, b: any) => a.index - b.index)
-                    .map((img: any) => img.imageData);
-                
-                console.log(`✅ [GET_TICKET] Retrieved ${largeImagesData.length} large images from subcollection`);
-                
-                // Merge small and large images in correct order
-                const smallImages = ticketData.images || [];
-                allImages = [...smallImages, ...largeImagesData];
-                
-            } catch (imageRetrievalError) {
-                console.error(`❌ [GET_TICKET] Failed to retrieve large images:`, imageRetrievalError);
-                // Continue with just small images
-            }
-        }
-        
         console.log(`🔍 [GET_TICKET] Retrieved ticket ${id} from database:`, {
             id,
             title: ticketData?.title,
-            smallImages: ticketData?.images?.length || 0,
-            largeImages: ticketData?.largeImageIds?.length || 0,
-            totalImages: allImages.length,
-            imagesData: allImages.map((img: any, idx: number) => ({
+            imageCount: ticketData?.images?.length || 0,
+            imageUrls: ticketData?.images?.map((url: string, idx: number) => ({
                 index: idx,
-                type: typeof img,
-                isDataUrl: img?.startsWith ? img.startsWith('data:') : false,
-                length: img?.length || 0,
-                preview: img?.substring ? img.substring(0, 50) + '...' : 'not string'
-            }))
+                url: url.substring(0, 100) + '...',
+                isStorageUrl: url.includes('storage.googleapis.com'),
+                isValidUrl: url.startsWith('http')
+            })) || 'no images'
         });
 
         return res.status(200).json({
             success: true,
             ticket: {
                 id: ticketDoc.id,
-                ...ticketData,
-                images: allImages // Return combined images array
+                ...ticketData
             }
         });
 

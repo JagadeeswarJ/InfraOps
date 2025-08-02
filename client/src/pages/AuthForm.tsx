@@ -598,7 +598,7 @@ export function AuthForm() {
                                 </SelectItem>
                               ))}
                               {communities.length === 0 && !communitiesLoading && (
-                                <SelectItem value="" disabled>
+                                <SelectItem value="no-communities" disabled>
                                   No communities available
                                 </SelectItem>
                               )}
