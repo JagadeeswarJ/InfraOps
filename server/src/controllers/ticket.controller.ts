@@ -199,8 +199,16 @@ const createTicket = async (req: Request, res: Response): Promise<any> => {
                     }
                 }
 
-            // Handle spam detection
-            if (aiResult.isSpam) {
+            // Handle spam detection - only if high confidence to avoid false positives
+            console.log(`🕵️ Spam Detection Result: isSpam=${aiResult.isSpam}, confidence=${aiResult.spamConfidence}, reason="${aiResult.spamReason}"`);
+            
+            if (aiResult.isSpam && aiResult.spamConfidence > 0.8) {
+                console.log(`🚨 HIGH CONFIDENCE SPAM DETECTED: ${aiResult.spamReason}`);
+            } else if (aiResult.isSpam) {
+                console.log(`⚠️ LOW CONFIDENCE SPAM - NOT FLAGGING: ${aiResult.spamReason}`);
+            }
+            
+            if (aiResult.isSpam && aiResult.spamConfidence > 0.8) {
                 await ticketRef.update({
                     status: 'spam',
                     spamMetadata: {
@@ -454,6 +462,13 @@ SPAM DETECTION CONTEXT:
         return `"${data.title}" - ${data.description}`;
     }).join(', ')}
 
+IMPORTANT SPAM GUIDELINES:
+- DO NOT flag tickets as spam simply because they have short titles or descriptions
+- DO NOT flag tickets as spam for having similar words like "water", "paint", etc.
+- Only flag as spam if content contains: abusive language, random characters, clearly fake issues, or malicious intent
+- Multiple tickets about the same issue from one reporter is NORMAL maintenance behavior, not spam
+- Brief descriptions like "water leak" or "paint issue" are legitimate maintenance requests
+
 EXISTING SIMILAR TICKETS:
 ${similarTickets.map(ticket => `
 ID: ${ticket.id}
@@ -475,7 +490,7 @@ Current Location: ${tech.currentLocation || 'Unknown'}
 ANALYSIS REQUIREMENTS:
 1. Category from: plumbing, electrical, hvac, carpentry, painting, appliance, landscaping, maintenance, security, elevator, fire_safety, pest_control
 2. Urgency: 'low' or 'high' based on safety/impact
-3. Spam detection: Check for duplicate/nonsensical content, excessive reporting
+3. Spam detection: Only flag as spam if content is clearly abusive, gibberish, or malicious. Brief descriptions are NORMAL and should NOT be flagged as spam
 4. Technician assignment: ONLY use IDs from the AVAILABLE TECHNICIANS list above. If no technicians are available, set recommendedTechnician to null
 5. Required tools and materials estimation
 
@@ -691,12 +706,12 @@ Respond with ONLY valid JSON:
                 processedAt: FieldValue.serverTimestamp() as any,
                 confidence: 0
             },
-            isSpam: false,
+            isSpam: false, // Default to NOT spam when AI fails
             spamConfidence: 0,
-            spamReason: '',
+            spamReason: 'AI processing failed - defaulting to legitimate ticket',
             shouldMergeWithExisting: false,
             similarTicketId: null,
-            reasoning: 'AI processing failed, using defaults',
+            reasoning: 'AI processing failed, treating as legitimate ticket with default settings',
             requiredTools: [],
             requiredMaterials: [],
             estimatedDuration: 'Unknown',
